@@ -1,0 +1,117 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top left, #818cf8, transparent 35%),
+        linear-gradient(135deg, #312e81, #6d28d9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.96);
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+}
+
+.auth-logo {
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 15px;
+    border-radius: 18px;
+    background: #eef2ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+.auth-card h1 {
+    text-align: center;
+    margin: 0;
+    color: #1e293b;
+}
+
+.subtitle {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+
+.tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 22px;
+}
+
+.tabs button {
+    width: 50%;
+    padding: 11px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.tabs button.active {
+    background: white;
+    color: #4f46e5;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 13px 14px;
+    margin-bottom: 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+    outline: none;
+    font-size: 14px;
+}
+
+.auth-card input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.auth-button:hover {
+    opacity: 0.92;
+}
+
+#authMessage {
+    text-align: center;
+    font-size: 13px;
+    margin-top: 18px;
+    min-height: 18px;
+}
