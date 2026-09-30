@@ -31,7 +31,7 @@ loginForm.addEventListener("submit", async function(event) {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/login",
+            "https://task-manager-backend-xxxx.onrender.com/login",
             {
                 method: "POST",
                 headers: {
@@ -95,7 +95,7 @@ signupForm.addEventListener("submit", async function(event) {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/signup",
+            "https://task-manager-backend-xxxx.onrender.com/signup",
             {
                 method: "POST",
                 headers: {
