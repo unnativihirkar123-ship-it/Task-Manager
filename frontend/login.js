@@ -31,7 +31,7 @@ loginForm.addEventListener("submit", async function(event) {
     try {
 
         const response = await fetch(
-            "https://task-manager-backend-xxxx.onrender.com/login",
+            "https://task-manager-backend-3nxb.onrender.com/login",
             {
                 method: "POST",
                 headers: {
@@ -95,7 +95,7 @@ signupForm.addEventListener("submit", async function(event) {
     try {
 
         const response = await fetch(
-            "https://task-manager-backend-xxxx.onrender.com/signup",
+            "https://task-manager-backend-3nxb.onrender.com/signup",
             {
                 method: "POST",
                 headers: {

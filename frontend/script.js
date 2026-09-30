@@ -35,7 +35,7 @@ taskForm.addEventListener("submit", async function (event) {
     try {
 
         const response = await fetch(
-            "https://task-manager-backend-xxxx.onrender.com/tasks",
+            "https://task-manager-backend-3nxb.onrender.com/tasks",
             {
                 method: "POST",
 
@@ -75,7 +75,7 @@ taskForm.addEventListener("submit", async function (event) {
 
 async function loadCategories() {
     try {
-        const response = await fetch("https://task-manager-backend-xxxx.onrender.com/categories");
+        const response = await fetch("https://task-manager-backend-3nxb.onrender.com/categories");
         const categories = await response.json();
 
         const categorySelect = document.getElementById("category");
@@ -109,7 +109,7 @@ async function displayCategories() {
     try {
 
         const response =
-            await fetch("https://task-manager-backend-xxxx.onrender.com/categories");
+            await fetch("https://task-manager-backend-3nxb.onrender.com/categories");
 
         const categories =
             await response.json();
@@ -155,7 +155,7 @@ categoryForm.addEventListener(
 
             const response =
                 await fetch(
-                    "https://task-manager-backend-xxxx.onrender.com/categories",
+                    "https://task-manager-backend-3nxb.onrender.com/categories",
                     {
                         method: "POST",
 
@@ -197,7 +197,7 @@ async function deleteCategory(id) {
 
         const response =
             await fetch(
-                `https://task-manager-backend-xxxx.onrender.com/categories/${id}`,
+                `https://task-manager-backend-3nxb.onrender.com/categories/${id}`,
                 {
                     method: "DELETE"
                 }
@@ -276,7 +276,7 @@ async function loadTasks() {
     try {
 
         const response = await fetch(
-            `https://task-manager-backend-xxxx.onrender.com/tasks?user_id=${user.user_id}`
+            `https://task-manager-backend-3nxb.onrender.com/tasks?user_id=${user.user_id}`
         );
 
         const tasks = await response.json();
@@ -507,7 +507,7 @@ async function confirmDelete() {
 
         const response =
             await fetch(
-                `https://task-manager-backend-xxxx.onrender.com/tasks/${deleteTaskId}`,
+                `https://task-manager-backend-3nxb.onrender.com/tasks/${deleteTaskId}`,
                 {
                     method: "DELETE"
                 }
@@ -545,7 +545,7 @@ async function editTask(id) {
         }
 
         const response = await fetch(
-            `https://task-manager-backend-xxxx.onrender.com/tasks?user_id=${user.user_id}`
+            `https://task-manager-backend-3nxb.onrender.com/tasks?user_id=${user.user_id}`
         );
 
         const tasks = await response.json();
@@ -628,7 +628,7 @@ editForm.addEventListener("submit", async function (event) {
     try {
 
         const response = await fetch(
-            `https://task-manager-backend-xxxx.onrender.com/tasks/${id}`,
+            `https://task-manager-backend-3nxb.onrender.com/tasks/${id}`,
             {
                 method: "PUT",
 
