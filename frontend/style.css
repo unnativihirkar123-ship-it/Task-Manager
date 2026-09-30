@@ -1206,3 +1206,50 @@ select:focus-visible {
         gap: 6px;
     }
 }
+/* Add task + Categories side by side */
+.two-col {
+    max-width: 1340px;
+    margin: 32px auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.two-col .form-container,
+.two-col .category-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 28px;
+}
+
+@media (max-width: 900px) {
+    .two-col { grid-template-columns: 1fr; }
+}
+
+/* Category form on one line */
+#categoryForm { display: flex; gap: 10px; }
+#categoryForm input { flex: 1; margin: 0; }
+#categoryForm button { width: auto; padding: 0 22px; white-space: nowrap; }
+
+/* Category chips */
+#categoryList { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+#categoryList > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: auto;
+    margin: 0;
+    padding: 8px 10px 8px 14px;
+    background: #f5eedd;
+    border: 1px solid #eadfc8;
+    border-radius: 999px;
+    font-size: 14px;
+}
+
+/* Gold plus icon and matching accent bar */
+.quick-action .plus { color: #c98a2b; font-size: 26px; font-weight: 700; line-height: 1; }
+.tab-pine { background: #c98a2b; }

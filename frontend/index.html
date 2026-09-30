@@ -110,7 +110,7 @@
             <div class="quick-action-grid">
 
                 <button type="button" class="quick-action" onclick="goToSection('addTask')">
-                    <span>➕</span>
+                    <span class="plus">+</span>
                     <div>
                         <strong>Add a task</strong>
                         <small>Log something new</small>
@@ -140,72 +140,77 @@
     </section>
 
 
-    <section class="form-container" id="addTask">
+    <!-- Add Task + Categories side by side -->
+    <div class="two-col">
 
-        <div class="section-heading">
-            <span class="section-tab tab-amber" aria-hidden="true"></span>
-            <h2>Add a new task</h2>
-        </div>
+        <section class="form-container" id="addTask">
 
-        <form id="taskForm">
-
-            <input type="text" id="title" placeholder="Task title" required>
-
-            <textarea id="description" placeholder="Describe what needs to be done..."></textarea>
-
-            <div class="field-row">
-
-                <select id="priority">
-                    <option value="Low">Low priority</option>
-                    <option value="Medium" selected>Medium priority</option>
-                    <option value="High">High priority</option>
-                </select>
-
-                <select id="category">
-                    <option value="1">College</option>
-                    <option value="2">Programming</option>
-                    <option value="3">Important</option>
-                </select>
-
+            <div class="section-heading">
+                <span class="section-tab tab-amber" aria-hidden="true"></span>
+                <h2>Add a new task</h2>
             </div>
 
-            <div class="field-row">
+            <form id="taskForm">
 
-                <select id="status">
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                </select>
+                <input type="text" id="title" placeholder="Task title" required>
 
-                <input type="date" id="due_date" required>
+                <textarea id="description" placeholder="Describe what needs to be done..."></textarea>
 
+                <div class="field-row">
+
+                    <select id="priority">
+                        <option value="Low">Low priority</option>
+                        <option value="Medium" selected>Medium priority</option>
+                        <option value="High">High priority</option>
+                    </select>
+
+                    <select id="category">
+                        <option value="1">College</option>
+                        <option value="2">Programming</option>
+                        <option value="3">Important</option>
+                    </select>
+
+                </div>
+
+                <div class="field-row">
+
+                    <select id="status">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+
+                    <input type="date" id="due_date" required>
+
+                </div>
+
+                <button type="submit">Add task</button>
+
+            </form>
+
+        </section>
+
+
+        <section class="category-container" id="categories">
+
+            <div class="section-heading">
+                <span class="section-tab tab-pine" aria-hidden="true"></span>
+                <h2>Manage categories</h2>
             </div>
 
-            <button type="submit">Add task</button>
+            <form id="categoryForm">
 
-        </form>
+                <input type="text" id="categoryName" placeholder="Enter category name" required>
 
-    </section>
+                <button type="submit">Add category</button>
 
+            </form>
 
-    <section class="category-container" id="categories">
+            <div id="categoryList"></div>
 
-        <div class="section-heading">
-            <span class="section-tab tab-pine" aria-hidden="true"></span>
-            <h2>Manage categories</h2>
-        </div>
+        </section>
 
-        <form id="categoryForm">
-
-            <input type="text" id="categoryName" placeholder="Enter category name" required>
-
-            <button type="submit">Add category</button>
-
-        </form>
-
-        <div id="categoryList"></div>
-
-    </section>
+    </div>
 
 
     <section class="tasks-section" id="myTasks">
