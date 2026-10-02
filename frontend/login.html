@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,9 @@
 
         <div class="auth-card">
 
-            <div class="auth-logo">📋</div>
+            <div class="auth-logo">
+                <img src="stintlist-logo.svg" alt="Stintlist">
+            </div>
 
             <h1>Task Manager</h1>
             <p class="subtitle">Manage your tasks smarter</p>
@@ -25,17 +28,9 @@
 
             <form id="loginForm">
 
-                <input
-                    type="email"
-                    id="loginEmail"
-                    placeholder="Email address"
-                    required>
+                <input type="email" id="loginEmail" placeholder="Email address" required>
 
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Password"
-                    required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
 
                 <button type="submit" class="auth-button">
                     Login
@@ -45,23 +40,11 @@
 
             <form id="signupForm" style="display: none;">
 
-                <input
-                    type="text"
-                    id="signupName"
-                    placeholder="Full name"
-                    required>
+                <input type="text" id="signupName" placeholder="Full name" required>
 
-                <input
-                    type="email"
-                    id="signupEmail"
-                    placeholder="Email address"
-                    required>
+                <input type="email" id="signupEmail" placeholder="Email address" required>
 
-                <input
-                    type="password"
-                    id="signupPassword"
-                    placeholder="Password"
-                    required>
+                <input type="password" id="signupPassword" placeholder="Password" required>
 
                 <button type="submit" class="auth-button">
                     Create Account
@@ -78,4 +61,5 @@
     <script src="login.js"></script>
 
 </body>
+
 </html>

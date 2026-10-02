@@ -50,15 +50,20 @@ body::before {
     box-shadow: 0 24px 60px rgba(0, 0, 0, .28)
 }
 
+/* STINTLIST LOGO */
 .auth-logo {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 14px;
-    border-radius: 16px;
-    background: var(--gold-soft);
-    display: grid;
-    place-items: center;
-    font-size: 28px
+    width: 170px;
+    height: auto;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.auth-logo img {
+    width: 170px;
+    height: auto;
+    display: block
 }
 
 .auth-card h1 {
@@ -167,7 +172,14 @@ button:focus-visible {
 }
 
 @media(max-width:480px) {
+
     .auth-card {
         padding: 28px 20px
     }
+
+    .auth-logo,
+    .auth-logo img {
+        width: 150px
+    }
+
 }

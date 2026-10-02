@@ -4,238 +4,800 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
+
+    <title>Stintlist</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link
         href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
+    <!-- HEADER -->
     <header>
+
         <nav class="navbar">
-            <div class="logo"><span class="logo-mark">&#9998;</span>Task Manager</div>
+
+            <div class="logo">
+                <img src="stintlist-logo.svg" alt="Stintlist">
+            </div>
+
             <div class="nav-links">
-                <a href="#dashboard">Dashboard</a><a href="#categories">Categories</a><a href="#myTasks">My Tasks</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#categories">Categories</a>
+                <a href="#myTasks">My Tasks</a>
             </div>
+
             <div class="user-area">
+
                 <span id="userName" class="user-name"></span>
-                <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
-                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+
+                <button type="button" id="logoutBtn" class="logout-btn">
+                    Logout
+                </button>
+
+                <button
+                    id="themeToggle"
+                    class="theme-toggle"
+                    aria-label="Toggle dark mode">
+                    🌙
+                </button>
+
             </div>
+
         </nav>
+
+
+        <!-- HERO -->
         <div class="hero">
+
             <div class="hero-copy">
+
                 <h1 id="greeting">Hello</h1>
+
                 <p id="todayDate"></p>
-                <p id="heroLine">Log what needs doing and watch the finished pile grow.</p>
+
+                <p id="heroLine">
+                    Log what needs doing and watch the finished pile grow.
+                </p>
+
             </div>
+
+
             <div class="ring" id="ring">
-                <div><strong id="ringPct">0%</strong><small>done</small></div>
+
+                <div>
+
+                    <strong id="ringPct">0%</strong>
+
+                    <small>done</small>
+
+                </div>
+
             </div>
+
         </div>
+
     </header>
 
+
+    <!-- MAIN -->
     <main class="wrap">
+
+
+        <!-- DASHBOARD -->
         <section id="dashboard">
+
+
+            <!-- STAT CARDS -->
             <div class="stats">
-                <button class="stat" onclick="filterDashboard('All')"><span>📋</span>
-                    <div><b id="totalTasks">0</b><small>Total</small></div>
-                </button>
-                <button class="stat" onclick="filterDashboard('Completed')"><span>✅</span>
-                    <div><b id="completedTasks">0</b><small>Completed</small></div>
-                </button>
-                <button class="stat" onclick="filterDashboard('In Progress')"><span>⏳</span>
-                    <div><b id="progressTasks">0</b><small>In progress</small></div>
-                </button>
-                <button class="stat" onclick="filterDashboard('Pending')"><span>📝</span>
-                    <div><b id="pendingTasks">0</b><small>Pending</small></div>
-                </button>
-            </div>
-            <div class="card">
-                <div class="row">
-                    <h3>Overall progress</h3><strong id="progressPercentage" class="gold">0%</strong>
-                </div>
-                <div class="bar">
-                    <div id="progressFill"></div>
-                </div>
-                <small id="progressText">0 of 0 tasks completed</small>
-            </div>
 
-            <div class="widgets">
-                <div class="card">
-                   <h3>Focus timer</h3>
+                <button
+                    class="stat"
+                    onclick="filterDashboard('All')">
 
-<div class="timer" id="timerView">25:00</div>
+                    <span>📋</span>
 
-<div class="btns">
-    <button class="btn gold-btn" id="timerStart">Start</button>
-    <button class="btn ghost" id="timerMode">Break</button>
-    <button class="btn ghost" id="timerReset">Reset</button>
-</div>
+                    <div>
 
-<div class="timer-settings">
-    <button class="btn ghost" id="timerSettingsBtn">⚙️ Customize Timer</button>
+                        <b id="totalTasks">0</b>
 
-    <div id="timerSettings" style="display:none; margin-top:12px;">
-        <label>
-            Focus (minutes)
-            <input type="number" id="focusInput" min="1" max="180" value="25">
-        </label>
+                        <small>Total</small>
 
-        <label>
-            Break (minutes)
-            <input type="number" id="breakInput" min="1" max="60" value="5">
-        </label>
-
-        <button class="btn gold-btn" id="saveTimerSettings">
-            Save Settings
-        </button>
-    </div>
-</div>
-                </div>
-                <div class="card">
-                    <h3>Exam countdown</h3>
-                    <div class="big" id="examDays">--</div>
-                    <small id="examLabel">Set your next exam</small>
-                    <div class="exam-form">
-                        <input type="text" id="examName" placeholder="e.g. GATE">
-                        <input type="date" id="examDate">
-                        <button class="btn gold-btn" id="examSave">Save</button>
                     </div>
+
+                </button>
+
+
+                <button
+                    class="stat"
+                    onclick="filterDashboard('Completed')">
+
+                    <span>✅</span>
+
+                    <div>
+
+                        <b id="completedTasks">0</b>
+
+                        <small>Completed</small>
+
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="stat"
+                    onclick="filterDashboard('In Progress')">
+
+                    <span>⏳</span>
+
+                    <div>
+
+                        <b id="progressTasks">0</b>
+
+                        <small>In progress</small>
+
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="stat"
+                    onclick="filterDashboard('Pending')">
+
+                    <span>📝</span>
+
+                    <div>
+
+                        <b id="pendingTasks">0</b>
+
+                        <small>Pending</small>
+
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            <!-- OVERALL PROGRESS -->
+            <div class="card">
+
+                <div class="row">
+
+                    <h3>Overall progress</h3>
+
+                    <strong
+                        id="progressPercentage"
+                        class="gold">
+                        0%
+                    </strong>
+
                 </div>
+
+
+                <div class="bar">
+
+                    <div id="progressFill"></div>
+
+                </div>
+
+
+                <small id="progressText">
+                    0 of 0 tasks completed
+                </small>
+
+            </div>
+
+
+            <!-- DASHBOARD WIDGETS -->
+            <div class="widgets">
+
+
+                <!-- FOCUS TIMER -->
                 <div class="card">
+
+                    <h3>Focus timer</h3>
+
+                    <div
+                        class="timer"
+                        id="timerView">
+                        25:00
+                    </div>
+
+
+                    <div class="btns">
+
+                        <button
+                            class="btn gold-btn"
+                            id="timerStart">
+                            Start
+                        </button>
+
+                        <button
+                            class="btn ghost"
+                            id="timerMode">
+                            Break
+                        </button>
+
+                        <button
+                            class="btn ghost"
+                            id="timerReset">
+                            Reset
+                        </button>
+
+                    </div>
+
+
+                    <div class="timer-settings">
+
+                        <button
+                            class="btn ghost"
+                            id="timerSettingsBtn">
+                            ⚙️ Customize Timer
+                        </button>
+
+
+                        <div
+                            id="timerSettings"
+                            style="display:none; margin-top:12px;">
+
+                            <label>
+
+                                Focus (minutes)
+
+                                <input
+                                    type="number"
+                                    id="focusInput"
+                                    min="1"
+                                    max="180"
+                                    value="25">
+
+                            </label>
+
+
+                            <label>
+
+                                Break (minutes)
+
+                                <input
+                                    type="number"
+                                    id="breakInput"
+                                    min="1"
+                                    max="60"
+                                    value="5">
+
+                            </label>
+
+
+                            <button
+                                class="btn gold-btn"
+                                id="saveTimerSettings">
+                                Save Settings
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EXAM COUNTDOWN -->
+                <div class="card">
+
+                    <h3>Exam countdown</h3>
+
+                    <div
+                        class="big"
+                        id="examDays">
+                        --
+                    </div>
+
+                    <small id="examLabel">
+                        Set your next exam
+                    </small>
+
+
+                    <div class="exam-form">
+
+                        <input
+                            type="text"
+                            id="examName"
+                            placeholder="e.g. GATE">
+
+                        <input
+                            type="date"
+                            id="examDate">
+
+                        <button
+                            class="btn gold-btn"
+                            id="examSave">
+                            Save
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STUDY STREAK -->
+                <div class="card">
+
                     <h3>Study streak</h3>
-                    <div class="big"><span id="streakCount">0</span> <small>days</small></div>
-                    <small>Complete a task each day to keep it alive.</small>
+
+                    <div class="big">
+
+                        <span id="streakCount">
+                            0
+                        </span>
+
+                        <small>days</small>
+
+                    </div>
+
+                    <small>
+                        Complete a task each day to keep it alive.
+                    </small>
+
                 </div>
+
+
+                <!-- WEEKLY CHART -->
                 <div class="card">
+
                     <h3>This week</h3>
-                    <div class="chart" id="weekChart"></div>
+
+                    <div
+                        class="chart"
+                        id="weekChart">
+                    </div>
+
                 </div>
+
             </div>
+
         </section>
 
-        <section class="card" id="categories">
+
+        <!-- CATEGORIES -->
+        <section
+            class="card"
+            id="categories">
+
             <h2>Categories</h2>
-            <form id="categoryForm" class="inline-form">
-                <input type="text" id="categoryName" placeholder="New category name" required>
-                <button type="submit" class="btn gold-btn">Add</button>
+
+
+            <form
+                id="categoryForm"
+                class="inline-form">
+
+                <input
+                    type="text"
+                    id="categoryName"
+                    placeholder="New category name"
+                    required>
+
+                <button
+                    type="submit"
+                    class="btn gold-btn">
+                    Add
+                </button>
+
             </form>
+
+
             <div id="categoryList"></div>
+
         </section>
 
+
+        <!-- MY TASKS -->
         <section id="myTasks">
+
+
             <div class="tasks-head">
+
                 <h2>My tasks</h2>
-                <div class="tabs" id="viewTabs">
-                    <button class="tab on" data-view="all">All</button>
-                    <button class="tab" data-view="today">Today</button>
-                    <button class="tab" data-view="upcoming">Upcoming</button>
-                    <button class="tab" data-view="overdue">Overdue</button>
+
+
+                <div
+                    class="tabs"
+                    id="viewTabs">
+
+                    <button
+                        class="tab on"
+                        data-view="all">
+                        All
+                    </button>
+
+                    <button
+                        class="tab"
+                        data-view="today">
+                        Today
+                    </button>
+
+                    <button
+                        class="tab"
+                        data-view="upcoming">
+                        Upcoming
+                    </button>
+
+                    <button
+                        class="tab"
+                        data-view="overdue">
+                        Overdue
+                    </button>
+
                 </div>
+
             </div>
+
+
+            <!-- FILTERS -->
             <div class="filters">
-                <input type="text" id="searchTask" placeholder="Search tasks...">
+
+                <input
+                    type="text"
+                    id="searchTask"
+                    placeholder="Search tasks...">
+
+
                 <select id="statusFilter">
-                    <option value="All">All status</option>
-                    <option>Pending</option>
-                    <option>In Progress</option>
-                    <option>Completed</option>
+
+                    <option value="All">
+                        All status
+                    </option>
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="In Progress">
+                        In Progress
+                    </option>
+
+                    <option value="Completed">
+                        Completed
+                    </option>
+
                 </select>
+
+
                 <select id="priorityFilter">
-                    <option value="All">All priority</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
+
+                    <option value="All">
+                        All priority
+                    </option>
+
+                    <option value="High">
+                        High
+                    </option>
+
+                    <option value="Medium">
+                        Medium
+                    </option>
+
+                    <option value="Low">
+                        Low
+                    </option>
+
                 </select>
+
+
                 <select id="sortTasks">
-                    <option value="default">Sort tasks</option>
-                    <option value="dueSoon">Due: soonest</option>
-                    <option value="dueLate">Due: latest</option>
-                    <option value="priorityHigh">Priority: high first</option>
-                    <option value="priorityLow">Priority: low first</option>
+
+                    <option value="default">
+                        Sort tasks
+                    </option>
+
+                    <option value="dueSoon">
+                        Due: soonest
+                    </option>
+
+                    <option value="dueLate">
+                        Due: latest
+                    </option>
+
+                    <option value="priorityHigh">
+                        Priority: high first
+                    </option>
+
+                    <option value="priorityLow">
+                        Priority: low first
+                    </option>
+
                 </select>
+
             </div>
+
+
             <div id="taskList"></div>
+
         </section>
+
     </main>
 
-    <button class="fab" id="fab" onclick="openAdd()">+ New Task</button>
 
-    <div id="addModal" class="modal">
+    <!-- NEW TASK BUTTON -->
+    <button
+        class="fab"
+        id="fab"
+        onclick="openAdd()">
+        + New Task
+    </button>
+
+
+    <!-- ADD TASK MODAL -->
+    <div
+        id="addModal"
+        class="modal">
+
         <div class="modal-content">
-            <span class="close" onclick="closeAdd()">&times;</span>
+
+            <span
+                class="close"
+                onclick="closeAdd()">
+                &times;
+            </span>
+
+
             <h2>New task</h2>
+
+
             <form id="taskForm">
-                <input type="text" id="title" placeholder="Task title" required>
-                <textarea id="description" placeholder="Describe what needs to be done..."></textarea>
+
+
+                <input
+                    type="text"
+                    id="title"
+                    placeholder="Task title"
+                    required>
+
+
+                <textarea
+                    id="description"
+                    placeholder="Describe what needs to be done...">
+                </textarea>
+
+
                 <div class="two">
+
                     <select id="priority">
-                        <option value="Low">Low priority</option>
-                        <option value="Medium" selected>Medium priority</option>
-                        <option value="High">High priority</option>
+
+                        <option value="Low">
+                            Low priority
+                        </option>
+
+                        <option
+                            value="Medium"
+                            selected>
+                            Medium priority
+                        </option>
+
+                        <option value="High">
+                            High priority
+                        </option>
+
                     </select>
+
+
                     <select id="category"></select>
+
                 </div>
+
+
                 <div class="two">
+
                     <select id="status">
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
+
+                        <option value="Pending">
+                            Pending
+                        </option>
+
+                        <option value="In Progress">
+                            In Progress
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
                     </select>
-                    <input type="date" id="due_date" required>
+
+
+                    <input
+                        type="date"
+                        id="due_date"
+                        required>
+
                 </div>
-                <button type="submit" class="btn gold-btn">Add task</button>
+
+
+                <button
+                    type="submit"
+                    class="btn gold-btn">
+                    Add task
+                </button>
+
             </form>
+
         </div>
+
     </div>
 
-    <div id="editModal" class="modal">
+
+    <!-- EDIT TASK MODAL -->
+    <div
+        id="editModal"
+        class="modal">
+
         <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
+
+            <span
+                class="close"
+                onclick="closeEditModal()">
+                &times;
+            </span>
+
+
             <h2>Edit task</h2>
+
+
             <form id="editForm">
-                <input type="hidden" id="editTaskId">
-                <input type="text" id="editTitle" required>
-                <textarea id="editDescription"></textarea>
+
+                <input
+                    type="hidden"
+                    id="editTaskId">
+
+
+                <input
+                    type="text"
+                    id="editTitle"
+                    required>
+
+
+                <textarea
+                    id="editDescription">
+                </textarea>
+
+
                 <div class="two">
+
                     <select id="editPriority">
-                        <option>Low</option>
-                        <option>Medium</option>
-                        <option>High</option>
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                        <option value="Medium">
+                            Medium
+                        </option>
+
+                        <option value="High">
+                            High
+                        </option>
+
                     </select>
+
+
                     <select id="editStatus">
-                        <option>Pending</option>
-                        <option>In Progress</option>
-                        <option>Completed</option>
+
+                        <option value="Pending">
+                            Pending
+                        </option>
+
+                        <option value="In Progress">
+                            In Progress
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
                     </select>
+
                 </div>
+
+
                 <select id="editCategory"></select>
-                <input type="date" id="editDueDate" required>
-                <button type="submit" class="btn gold-btn">Save changes</button>
+
+
+                <input
+                    type="date"
+                    id="editDueDate"
+                    required>
+
+
+                <button
+                    type="submit"
+                    class="btn gold-btn">
+                    Save changes
+                </button>
+
             </form>
+
         </div>
+
     </div>
 
-    <div id="deleteModal" class="modal">
-        <div class="modal-content" style="text-align:center">
-            <h2>Delete this task?</h2>
-            <p class="muted">This can't be undone.</p>
-            <div class="btns" style="justify-content:center">
-                <button class="btn danger" onclick="confirmDelete()">Yes, delete</button>
-                <button class="btn ghost" onclick="closeDeleteModal()">Cancel</button>
+
+    <!-- DELETE TASK MODAL -->
+    <div
+        id="deleteModal"
+        class="modal">
+
+        <div
+            class="modal-content"
+            style="text-align:center">
+
+            <h2>
+                Delete this task?
+            </h2>
+
+
+            <p class="muted">
+                This can't be undone.
+            </p>
+
+
+            <div
+                class="btns"
+                style="justify-content:center">
+
+                <button
+                    class="btn danger"
+                    onclick="confirmDelete()">
+                    Yes, delete
+                </button>
+
+
+                <button
+                    class="btn ghost"
+                    onclick="closeDeleteModal()">
+                    Cancel
+                </button>
+
             </div>
+
         </div>
+
     </div>
 
-    <div id="toast" class="toast"></div>
-    <button id="backToTop" onclick="scrollToTop()" aria-label="Back to top">↑</button>
 
-    <footer>Task Manager &mdash; a DBMS project &middot; HTML, CSS, JavaScript &amp; MySQL</footer>
+    <!-- TOAST -->
+    <div
+        id="toast"
+        class="toast">
+    </div>
+
+
+    <!-- BACK TO TOP -->
+    <button
+        id="backToTop"
+        onclick="scrollToTop()"
+        aria-label="Back to top">
+        ↑
+    </button>
+
+
+    <!-- FOOTER -->
+    <footer>
+        Stintlist &mdash; a DBMS project &middot;
+        HTML, CSS, JavaScript &amp; MySQL
+    </footer>
+
+
     <script src="script.js"></script>
+
 </body>
 
 </html>
