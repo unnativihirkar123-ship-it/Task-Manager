@@ -66,13 +66,35 @@
 
             <div class="widgets">
                 <div class="card">
-                    <h3>Focus timer</h3>
-                    <div class="timer" id="timerView">25:00</div>
-                    <div class="btns">
-                        <button class="btn gold-btn" id="timerStart">Start</button>
-                        <button class="btn ghost" id="timerMode">Break</button>
-                        <button class="btn ghost" id="timerReset">Reset</button>
-                    </div>
+                   <h3>Focus timer</h3>
+
+<div class="timer" id="timerView">25:00</div>
+
+<div class="btns">
+    <button class="btn gold-btn" id="timerStart">Start</button>
+    <button class="btn ghost" id="timerMode">Break</button>
+    <button class="btn ghost" id="timerReset">Reset</button>
+</div>
+
+<div class="timer-settings">
+    <button class="btn ghost" id="timerSettingsBtn">⚙️ Customize Timer</button>
+
+    <div id="timerSettings" style="display:none; margin-top:12px;">
+        <label>
+            Focus (minutes)
+            <input type="number" id="focusInput" min="1" max="180" value="25">
+        </label>
+
+        <label>
+            Break (minutes)
+            <input type="number" id="breakInput" min="1" max="60" value="5">
+        </label>
+
+        <button class="btn gold-btn" id="saveTimerSettings">
+            Save Settings
+        </button>
+    </div>
+</div>
                 </div>
                 <div class="card">
                     <h3>Exam countdown</h3>

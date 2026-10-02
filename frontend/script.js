@@ -172,18 +172,136 @@ $("examSave").onclick = async () => {
     }
 };
 /* ---------- pomodoro ---------- */
-let pomo = { mode: 25, left: 1500, id: null };
-const showTimer = () => $("timerView").textContent = `${String(Math.floor(pomo.left / 60)).padStart(2, "0")}:${String(pomo.left % 60).padStart(2, "0")}`;
+/* ---------- focus timer ---------- */
+
+let pomo = {
+    left: 25 * 60,
+    id: null,
+    mode: 25
+};
+
+const savedFocusTime = Number(localStorage.getItem("focusTime"));
+const savedBreakTime = Number(localStorage.getItem("breakTime"));
+
+const focusTime = savedFocusTime > 0 ? savedFocusTime : 25;
+const breakTime = savedBreakTime > 0 ? savedBreakTime : 5;
+
+pomo.mode = focusTime;
+pomo.left = focusTime * 60;
+
+const showTimer = () => {
+    $("timerView").textContent =
+        `${String(Math.floor(pomo.left / 60)).padStart(2, "0")}:${String(pomo.left % 60).padStart(2, "0")}`;
+};
+
 $("timerStart").onclick = () => {
-    if (pomo.id) { clearInterval(pomo.id); pomo.id = null; $("timerStart").textContent = "Start"; return; }
+
+    if (pomo.id) {
+        clearInterval(pomo.id);
+        pomo.id = null;
+        $("timerStart").textContent = "Start";
+        return;
+    }
+
     $("timerStart").textContent = "Pause";
+
     pomo.id = setInterval(() => {
-        if (--pomo.left <= 0) { clearInterval(pomo.id); pomo.id = null; pomo.left = 0; $("timerStart").textContent = "Start"; toast(pomo.mode === 25 ? "Focus done. Take a break!" : "Break over. Back to work!"); }
+
+        pomo.left--;
+
+        if (pomo.left <= 0) {
+
+            clearInterval(pomo.id);
+            pomo.id = null;
+            pomo.left = 0;
+
+            $("timerStart").textContent = "Start";
+
+            if (pomo.mode === focusTime) {
+                toast("Focus done. Take a break!");
+            } else {
+                toast("Break over. Back to work!");
+            }
+        }
+
         showTimer();
+
     }, 1000);
 };
-$("timerMode").onclick = () => { pomo.mode = pomo.mode === 25 ? 5 : 25; $("timerMode").textContent = pomo.mode === 25 ? "Break" : "Focus"; $("timerReset").click(); };
-$("timerReset").onclick = () => { clearInterval(pomo.id); pomo.id = null; pomo.left = pomo.mode * 60; $("timerStart").textContent = "Start"; showTimer(); };
+
+$("timerMode").onclick = () => {
+
+    pomo.mode = pomo.mode === focusTime ? breakTime : focusTime;
+
+    $("timerMode").textContent =
+        pomo.mode === focusTime ? "Break" : "Focus";
+
+    $("timerReset").click();
+};
+
+$("timerReset").onclick = () => {
+
+    clearInterval(pomo.id);
+    pomo.id = null;
+
+    pomo.left = pomo.mode * 60;
+
+    $("timerStart").textContent = "Start";
+
+    showTimer();
+};
+
+showTimer();
+
+// Timer customization
+
+$("timerSettingsBtn").onclick = () => {
+    const settings = $("timerSettings");
+
+    settings.style.display =
+        settings.style.display === "none" ? "block" : "none";
+
+    $("focusInput").value =
+        Number(localStorage.getItem("focusTime")) || 25;
+
+    $("breakInput").value =
+        Number(localStorage.getItem("breakTime")) || 5;
+};
+
+$("saveTimerSettings").onclick = () => {
+
+    const newFocus = Number($("focusInput").value);
+    const newBreak = Number($("breakInput").value);
+
+    if (newFocus < 1 || newFocus > 180) {
+        toast("Focus time must be between 1 and 180 minutes.");
+        return;
+    }
+
+    if (newBreak < 1 || newBreak > 60) {
+        toast("Break time must be between 1 and 60 minutes.");
+        return;
+    }
+
+    localStorage.setItem("focusTime", newFocus);
+    localStorage.setItem("breakTime", newBreak);
+
+    pomo.mode = newFocus;
+    pomo.left = newFocus * 60;
+
+    $("timerMode").textContent = "Break";
+
+    clearInterval(pomo.id);
+    pomo.id = null;
+
+    $("timerStart").textContent = "Start";
+
+    showTimer();
+
+    $("timerSettings").style.display = "none";
+
+    toast("Timer settings saved!");
+};
 
 /* ---------- modals ---------- */
 const openAdd = () => $("addModal").style.display = "block";

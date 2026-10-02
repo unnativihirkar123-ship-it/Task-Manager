@@ -357,7 +357,7 @@ app.post("/api/progress", (req, res) => {
 
 
 /// Record today's study activity and update streak
-// Record today's study activity and update streak
+
 app.post("/api/progress/study", async (req, res) => {
     try {
         const { user_id } = req.body;
@@ -368,7 +368,7 @@ app.post("/api/progress/study", async (req, res) => {
             });
         }
 
-        // Record today's activity
+        // Record today's study activity
         await db.promise().query(
             `INSERT INTO study_activity (user_id, study_date, completed)
              VALUES (?, CURDATE(), TRUE)
@@ -376,38 +376,35 @@ app.post("/api/progress/study", async (req, res) => {
             [user_id]
         );
 
-        // Calculate streak using MySQL dates
+        // Get all study dates for this user
         const [rows] = await db.promise().query(
-            `WITH RECURSIVE streak_dates AS (
-                SELECT CURDATE() AS study_date
-
-                UNION ALL
-
-                SELECT DATE_SUB(study_date, INTERVAL 1 DAY)
-                FROM streak_dates
-                WHERE EXISTS (
-                    SELECT 1
-                    FROM study_activity
-                    WHERE user_id = ?
-                    AND study_date = DATE_SUB(streak_dates.study_date, INTERVAL 1 DAY)
-                    AND completed = TRUE
-                )
-            )
-            SELECT COUNT(*) AS streak
-            FROM streak_dates
-            WHERE EXISTS (
-                SELECT 1
-                FROM study_activity
-                WHERE user_id = ?
-                AND study_date = streak_dates.study_date
-                AND completed = TRUE
-            )`,
-            [user_id, user_id]
+            `SELECT study_date
+             FROM study_activity
+             WHERE user_id = ?
+             AND completed = TRUE
+             ORDER BY study_date DESC`,
+            [user_id]
         );
 
-        const streak = Number(rows[0].streak || 0);
+        // Calculate streak using date strings
+        let streak = 0;
+        let expectedDate = new Date();
 
-        // Update user's progress
+        for (const row of rows) {
+            const date = new Date(row.study_date);
+
+            const expected = expectedDate.toISOString().split("T")[0];
+            const actual = date.toISOString().split("T")[0];
+
+            if (actual === expected) {
+                streak++;
+                expectedDate.setDate(expectedDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+
+        // Update user progress
         await db.promise().query(
             `UPDATE user_progress
              SET study_streak = ?,
@@ -428,11 +425,11 @@ app.post("/api/progress/study", async (req, res) => {
 
         res.status(500).json({
             success: false,
-            message: "Failed to record study activity"
+            message: "Failed to record study activity",
+            error: error.message
         });
     }
 });
-
 // Manually update streak
 app.post("/api/progress/update-streak", (req, res) => {
     const { user_id, study_streak } = req.body;
