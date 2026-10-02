@@ -864,3 +864,419 @@ input:focus-visible {
         transition: none !important
     }
 }
+
+/* =========================================================
+   DESKTOP HOMEPAGE NAVBAR - COMPACT LOGO
+   ========================================================= */
+
+@media (min-width: 601px) {
+
+    .navbar {
+        min-height: 58px;
+
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+
+        gap: 10px;
+    }
+
+    /* Compact logo */
+    .logo {
+        font-family: var(--f1);
+        font-size: 17px !important;
+        font-weight: 700;
+
+        display: flex;
+        align-items: center;
+
+        gap: 7px;
+
+        white-space: nowrap;
+    }
+
+    .logo-mark {
+        width: 28px !important;
+        height: 28px !important;
+
+        min-width: 28px;
+
+        border-radius: 8px;
+
+        font-size: 13px !important;
+    }
+
+    /* Navigation */
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+    }
+
+    /* User controls */
+    .user-area {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .user-name {
+        font-size: 13px;
+    }
+
+    .logout-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .theme-toggle {
+        padding: 6px 9px;
+        font-size: 13px;
+    }
+}
+
+
+/* =========================================================
+   LAPTOP / DESKTOP HERO - KEEP IT BALANCED
+   ========================================================= */
+
+@media (min-width: 961px) {
+
+    .hero {
+        padding-top: 26px !important;
+        padding-bottom: 34px !important;
+    }
+
+    .hero h1 {
+        font-size: 36px !important;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .ring {
+        width: 110px;
+        height: 110px;
+    }
+
+    .ring > div {
+        width: 88px;
+        height: 88px;
+    }
+
+    .ring strong {
+        font-size: 23px;
+    }
+}
+/* =========================================================
+   TASKFLOW / STINTLIST - MOBILE NAVBAR FIX
+   Paste this at the END of your CSS
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    /* ---------- NAVBAR ---------- */
+
+    .navbar {
+        width: 100%;
+        max-width: 100%;
+        min-height: 54px;
+
+        padding: 8px 12px !important;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap !important;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 6px;
+    }
+
+    /* ---------- LOGO ---------- */
+
+    .logo {
+        font-family: var(--f1);
+        font-size: 16px !important;
+        font-weight: 700;
+
+        display: flex;
+        align-items: center;
+
+        gap: 6px;
+
+        white-space: nowrap;
+        flex-shrink: 1;
+        min-width: 0;
+    }
+
+    .logo-mark {
+        width: 34px !important;
+        height: 34px !important;
+
+        min-width: 34px;
+
+        border-radius: 9px;
+
+        font-size: 14px !important;
+
+        flex-shrink: 0;
+    }
+
+    /* ---------- NAVIGATION ---------- */
+
+    .nav-links {
+        display: none !important;
+    }
+
+    /* ---------- USER AREA ---------- */
+
+    .user-area {
+        display: flex;
+
+        align-items: center;
+        justify-content: flex-end;
+
+        gap: 4px;
+
+        flex-shrink: 0;
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    .logout-btn,
+    .theme-toggle {
+        padding: 5px 7px !important;
+
+        font-size: 10px !important;
+
+        border-radius: 7px;
+
+        white-space: nowrap;
+    }
+
+    .theme-toggle {
+        width: 30px;
+        height: 30px;
+
+        padding: 0 !important;
+
+        display: grid;
+        place-items: center;
+    }
+
+
+    /* ---------- HERO ---------- */
+
+    .hero {
+        width: 100%;
+
+        padding-top: 24px !important;
+        padding-bottom: 28px !important;
+
+        gap: 18px;
+    }
+
+    .hero h1 {
+        font-size: 28px !important;
+        line-height: 1.15;
+    }
+
+    .hero p {
+        font-size: 13px;
+    }
+
+
+    /* ---------- PROGRESS RING ---------- */
+
+    .ring {
+        width: 90px;
+        height: 90px;
+    }
+
+    .ring > div {
+        width: 72px;
+        height: 72px;
+    }
+
+    .ring strong {
+        font-size: 20px;
+    }
+
+
+    /* ---------- MAIN CONTENT ---------- */
+
+    .wrap {
+        width: 100%;
+
+        padding-top: 20px !important;
+        padding-bottom: 100px !important;
+
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+
+        gap: 14px;
+    }
+
+
+    /* ---------- STAT CARDS ---------- */
+
+    .stats,
+    .widgets {
+        grid-template-columns: 1fr !important;
+
+        gap: 8px;
+    }
+
+    .stat {
+        min-height: 58px;
+
+        padding: 10px 12px;
+
+        border-radius: 11px;
+
+        gap: 10px;
+    }
+
+    .stat span {
+        width: 34px;
+        height: 34px;
+
+        min-width: 34px;
+
+        font-size: 15px;
+    }
+
+    .stat b {
+        font-size: 21px;
+    }
+
+
+    /* ---------- CARDS ---------- */
+
+    .card {
+        padding: 14px;
+
+        border-radius: 12px;
+    }
+
+
+    /* ---------- PROGRESS ---------- */
+
+    .row {
+        margin-bottom: 8px;
+    }
+
+    .bar {
+        height: 7px;
+    }
+
+
+    /* ---------- TASK LIST ---------- */
+
+    #taskList {
+        grid-template-columns: 1fr !important;
+
+        gap: 10px;
+    }
+
+    .task {
+        padding: 13px 14px;
+
+        border-radius: 12px;
+    }
+
+
+    /* ---------- FILTERS ---------- */
+
+    .filters,
+    .two {
+        grid-template-columns: 1fr !important;
+    }
+
+
+    /* ---------- BUTTONS ---------- */
+
+    .btn {
+        padding: 9px 13px;
+
+        font-size: 13px;
+    }
+
+
+    /* ---------- FLOATING ADD BUTTON ---------- */
+
+    .fab {
+        right: 12px;
+        bottom: 14px;
+
+        padding: 11px 17px;
+
+        font-size: 12px;
+    }
+
+
+    /* ---------- MODAL ---------- */
+
+    .modal {
+        padding: 12px;
+    }
+
+    .modal-content {
+        width: 100%;
+
+        margin: 4vh auto;
+
+        padding: 20px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .navbar {
+        padding-left: 9px !important;
+        padding-right: 9px !important;
+
+        gap: 4px;
+    }
+
+    .logo {
+        font-size: 14px !important;
+        gap: 5px;
+    }
+
+    .logo-mark {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px;
+
+        border-radius: 8px;
+    }
+
+    .logout-btn,
+    .theme-toggle {
+        font-size: 9px !important;
+        padding: 4px 6px !important;
+    }
+
+    .theme-toggle {
+        width: 27px;
+        height: 27px;
+    }
+
+    .hero h1 {
+        font-size: 25px !important;
+    }
+}
+
