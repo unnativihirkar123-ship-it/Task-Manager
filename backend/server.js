@@ -357,7 +357,7 @@ app.post("/api/progress", (req, res) => {
 
 
 /// Record today's study activity and update streak
-
+// Record today's study activity and update streak
 app.post("/api/progress/study", async (req, res) => {
     try {
         const { user_id } = req.body;
@@ -368,51 +368,58 @@ app.post("/api/progress/study", async (req, res) => {
             });
         }
 
-        const today = new Date().toISOString().split("T")[0];
-
-        // 1. Save today's study activity
+        // Record today's activity
         await db.promise().query(
             `INSERT INTO study_activity (user_id, study_date, completed)
-             VALUES (?, ?, TRUE)
+             VALUES (?, CURDATE(), TRUE)
              ON DUPLICATE KEY UPDATE completed = TRUE`,
-            [user_id, today]
+            [user_id]
         );
 
+        // Calculate streak using MySQL dates
         const [rows] = await db.promise().query(
-    `SELECT DATE_FORMAT(study_date, '%Y-%m-%d') AS study_date
-     FROM study_activity
-     WHERE user_id = ? AND completed = TRUE
-     ORDER BY study_date DESC`,
-    [user_id]
-);
-        // 3. Calculate current streak
-        for (const row of rows) {
-    const studyDate = row.study_date;
-    const expectedDate = checkDate.toISOString().split("T")[0];
+            `WITH RECURSIVE streak_dates AS (
+                SELECT CURDATE() AS study_date
 
-    if (studyDate === expectedDate) {
-        streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-    } else if (studyDate < expectedDate) {
-        break;
-    }
-}
+                UNION ALL
 
-        // 4. Create progress row if user doesn't have one
+                SELECT DATE_SUB(study_date, INTERVAL 1 DAY)
+                FROM streak_dates
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM study_activity
+                    WHERE user_id = ?
+                    AND study_date = DATE_SUB(streak_dates.study_date, INTERVAL 1 DAY)
+                    AND completed = TRUE
+                )
+            )
+            SELECT COUNT(*) AS streak
+            FROM streak_dates
+            WHERE EXISTS (
+                SELECT 1
+                FROM study_activity
+                WHERE user_id = ?
+                AND study_date = streak_dates.study_date
+                AND completed = TRUE
+            )`,
+            [user_id, user_id]
+        );
+
+        const streak = Number(rows[0].streak || 0);
+
+        // Update user's progress
         await db.promise().query(
-            `INSERT INTO user_progress
-             (user_id, study_streak, last_study_date)
-             VALUES (?, ?, ?)
-             ON DUPLICATE KEY UPDATE
-             study_streak = VALUES(study_streak),
-             last_study_date = VALUES(last_study_date)`,
-            [user_id, streak, today]
+            `UPDATE user_progress
+             SET study_streak = ?,
+                 last_study_date = CURDATE()
+             WHERE user_id = ?`,
+            [streak, user_id]
         );
 
         res.json({
             success: true,
             message: "Study activity recorded successfully",
-            study_date: today,
+            study_date: new Date().toISOString().split("T")[0],
             study_streak: streak
         });
 
