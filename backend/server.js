@@ -261,6 +261,191 @@ app.post("/login", (req, res) => {
         }
     });
 });
+/* ===================== EXAM PROGRESS ===================== */
+
+// Get user's exam progress
+app.get("/api/progress/:user_id", (req, res) => {
+    const { user_id } = req.params;
+
+    db.query(
+        "SELECT * FROM user_progress WHERE user_id = ? ORDER BY exam_date ASC",
+        [user_id],
+        (err, results) => {
+            if (err) return fail(res, err, "Error fetching progress.");
+            res.json(results);
+        }
+    );
+});
+
+
+// Save exam details
+app.post("/api/progress", (req, res) => {
+    const {
+        user_id,
+        exam_name,
+        exam_date
+    } = req.body;
+
+    if (!user_id || !exam_name || !exam_date) {
+        return res.status(400).json({
+            message: "User ID, exam name and exam date are required."
+        });
+    }
+
+    db.query(
+        `INSERT INTO user_progress
+        (user_id, exam_name, exam_date, study_streak, last_study_date)
+        VALUES (?, ?, ?, 0, NULL)`,
+        [user_id, exam_name, exam_date],
+        (err, result) => {
+            if (err) return fail(res, err, "Error saving exam progress.");
+
+            res.status(201).json({
+                message: "Exam progress saved successfully!",
+                progress_id: result.insertId
+            });
+        }
+    );
+});
+
+
+// Record today's study activity
+app.post("/api/progress/study", (req, res) => {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+        return res.status(400).json({
+            message: "User ID is required."
+        });
+    }
+
+    db.query(
+        `SELECT * FROM user_progress
+         WHERE user_id = ?
+         ORDER BY progress_id DESC
+         LIMIT 1`,
+        [user_id],
+        (err, results) => {
+            if (err) return fail(res, err, "Error checking progress.");
+
+            if (results.length === 0) {
+                return res.status(404).json({
+                    message: "No exam progress found."
+                });
+            }
+
+            const progress = results[0];
+
+            const today = new Date().toISOString().split("T")[0];
+
+            if (
+                progress.last_study_date &&
+                new Date(progress.last_study_date)
+                    .toISOString()
+                    .split("T")[0] === today
+            ) {
+                return res.json({
+                    message: "Today's study is already recorded.",
+                    study_streak: progress.study_streak
+                });
+            }
+
+            let newStreak = progress.study_streak || 0;
+
+            if (progress.last_study_date) {
+                const lastDate = new Date(progress.last_study_date);
+                const todayDate = new Date(today);
+
+                const difference =
+                    Math.floor(
+                        (todayDate - lastDate) /
+                        (1000 * 60 * 60 * 24)
+                    );
+
+                if (difference === 1) {
+                    newStreak++;
+                } else {
+                    newStreak = 1;
+                }
+            } else {
+                newStreak = 1;
+            }
+
+            db.query(
+                `UPDATE user_progress
+                 SET study_streak = ?, last_study_date = ?
+                 WHERE progress_id = ?`,
+                [newStreak, today, progress.progress_id],
+                (err) => {
+                    if (err) {
+                        return fail(
+                            res,
+                            err,
+                            "Error updating study streak."
+                        );
+                    }
+
+                    res.json({
+                        message: "Study activity recorded!",
+                        study_streak: newStreak
+                    });
+                }
+            );
+        }
+    );
+});
+
+
+// Manually update streak
+app.post("/api/progress/update-streak", (req, res) => {
+    const { user_id, study_streak } = req.body;
+
+    if (!user_id || study_streak === undefined) {
+        return res.status(400).json({
+            message: "User ID and study streak are required."
+        });
+    }
+
+    db.query(
+        `UPDATE user_progress
+         SET study_streak = ?
+         WHERE user_id = ?`,
+        [study_streak, user_id],
+        (err) => {
+            if (err) return fail(res, err, "Error updating streak.");
+
+            res.json({
+                message: "Study streak updated successfully!"
+            });
+        }
+    );
+});
+
+
+// Get weekly study progress
+app.get("/api/progress/week/:user_id", (req, res) => {
+    const { user_id } = req.params;
+
+    db.query(
+        `SELECT *
+         FROM study_activity
+         WHERE user_id = ?
+         AND study_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+         ORDER BY study_date ASC`,
+        [user_id],
+        (err, results) => {
+            if (err) {
+                return fail(
+                    res,
+                    err,
+                    "Error fetching weekly progress."
+                );
+            }
+
+            res.json(results);
+        }
+    );
+});
 
 const PORT = process.env.PORT || 3000;
 
