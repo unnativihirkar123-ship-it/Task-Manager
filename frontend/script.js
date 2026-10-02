@@ -174,26 +174,26 @@ $("examSave").onclick = async () => {
 /* ---------- pomodoro ---------- */
 /* ---------- focus timer ---------- */
 
+/* ---------- focus timer ---------- */
+
+let focusTime = Number(localStorage.getItem("focusTime")) || 25;
+let breakTime = Number(localStorage.getItem("breakTime")) || 5;
+
 let pomo = {
-    left: 25 * 60,
+    left: focusTime * 60,
     id: null,
-    mode: 25
+    mode: "focus"
 };
-
-const savedFocusTime = Number(localStorage.getItem("focusTime"));
-const savedBreakTime = Number(localStorage.getItem("breakTime"));
-
-const focusTime = savedFocusTime > 0 ? savedFocusTime : 25;
-const breakTime = savedBreakTime > 0 ? savedBreakTime : 5;
-
-pomo.mode = focusTime;
-pomo.left = focusTime * 60;
 
 const showTimer = () => {
+    const minutes = Math.floor(pomo.left / 60);
+    const seconds = pomo.left % 60;
+
     $("timerView").textContent =
-        `${String(Math.floor(pomo.left / 60)).padStart(2, "0")}:${String(pomo.left % 60).padStart(2, "0")}`;
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 };
 
+/* Start / Pause */
 $("timerStart").onclick = () => {
 
     if (pomo.id) {
@@ -213,15 +213,27 @@ $("timerStart").onclick = () => {
 
             clearInterval(pomo.id);
             pomo.id = null;
-            pomo.left = 0;
 
             $("timerStart").textContent = "Start";
 
-            if (pomo.mode === focusTime) {
+            if (pomo.mode === "focus") {
                 toast("Focus done. Take a break!");
             } else {
                 toast("Break over. Back to work!");
             }
+
+            pomo.left =
+                pomo.mode === "focus"
+                    ? breakTime * 60
+                    : focusTime * 60;
+
+            pomo.mode =
+                pomo.mode === "focus"
+                    ? "break"
+                    : "focus";
+
+            $("timerMode").textContent =
+                pomo.mode === "focus" ? "Break" : "Focus";
         }
 
         showTimer();
@@ -229,29 +241,90 @@ $("timerStart").onclick = () => {
     }, 1000);
 };
 
+/* Focus / Break */
 $("timerMode").onclick = () => {
 
-    pomo.mode = pomo.mode === focusTime ? breakTime : focusTime;
+    pomo.mode =
+        pomo.mode === "focus"
+            ? "break"
+            : "focus";
 
     $("timerMode").textContent =
-        pomo.mode === focusTime ? "Break" : "Focus";
+        pomo.mode === "focus" ? "Break" : "Focus";
 
     $("timerReset").click();
 };
 
+/* Reset */
 $("timerReset").onclick = () => {
 
     clearInterval(pomo.id);
     pomo.id = null;
 
-    pomo.left = pomo.mode * 60;
+    pomo.left =
+        pomo.mode === "focus"
+            ? focusTime * 60
+            : breakTime * 60;
 
     $("timerStart").textContent = "Start";
 
     showTimer();
 };
 
+/* Customize timer */
+$("timerSettingsBtn").onclick = () => {
+
+    const settings = $("timerSettings");
+
+    settings.style.display =
+        settings.style.display === "none"
+            ? "block"
+            : "none";
+
+    $("focusInput").value = focusTime;
+    $("breakInput").value = breakTime;
+};
+
+/* Save timer settings */
+$("saveTimerSettings").onclick = () => {
+
+    const newFocus = Number($("focusInput").value);
+    const newBreak = Number($("breakInput").value);
+
+    if (!newFocus || newFocus < 1 || newFocus > 180) {
+        toast("Focus time must be between 1 and 180 minutes.");
+        return;
+    }
+
+    if (!newBreak || newBreak < 1 || newBreak > 60) {
+        toast("Break time must be between 1 and 60 minutes.");
+        return;
+    }
+
+    focusTime = newFocus;
+    breakTime = newBreak;
+
+    localStorage.setItem("focusTime", focusTime);
+    localStorage.setItem("breakTime", breakTime);
+
+    clearInterval(pomo.id);
+    pomo.id = null;
+
+    pomo.mode = "focus";
+    pomo.left = focusTime * 60;
+
+    $("timerStart").textContent = "Start";
+    $("timerMode").textContent = "Break";
+
+    showTimer();
+
+    $("timerSettings").style.display = "none";
+
+    toast("Timer settings saved!");
+};
+
 showTimer();
+
 
 // Timer customization
 
