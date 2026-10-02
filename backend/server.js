@@ -378,30 +378,25 @@ app.post("/api/progress/study", async (req, res) => {
             [user_id, today]
         );
 
-        // 2. Get all completed study dates
         const [rows] = await db.promise().query(
-            `SELECT study_date
-             FROM study_activity
-             WHERE user_id = ? AND completed = TRUE
-             ORDER BY study_date DESC`,
-            [user_id]
-        );
-
+    `SELECT DATE_FORMAT(study_date, '%Y-%m-%d') AS study_date
+     FROM study_activity
+     WHERE user_id = ? AND completed = TRUE
+     ORDER BY study_date DESC`,
+    [user_id]
+);
         // 3. Calculate current streak
-        let streak = 0;
-        let checkDate = new Date(today);
-
         for (const row of rows) {
-            const studyDate = String(row.study_date).substring(0, 10);
-            const expectedDate = checkDate.toISOString().split("T")[0];
+    const studyDate = row.study_date;
+    const expectedDate = checkDate.toISOString().split("T")[0];
 
-            if (studyDate === expectedDate) {
-                streak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else if (studyDate < expectedDate) {
-                break;
-            }
-        }
+    if (studyDate === expectedDate) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+    } else if (studyDate < expectedDate) {
+        break;
+    }
+}
 
         // 4. Create progress row if user doesn't have one
         await db.promise().query(
