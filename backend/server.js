@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -10,80 +9,71 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const fail = (res, err, message, code = 500) => {
+    console.error(err);
+    return res.status(code).json({ message });
+};
+
 app.get("/", (req, res) => {
     res.send("Task Manager Server is Running!");
 });
+
+/* ===================== CATEGORIES ===================== */
+
 app.get("/categories", (req, res) => {
-
-    const sql = "SELECT * FROM categories";
-
-    db.query(sql, (err, result) => {
-
-        if (err) {
-            return res.status(500).json(err);
-        }
-
+    db.query("SELECT * FROM categories", (err, result) => {
+        if (err) return fail(res, err, "Error fetching categories.");
         res.json(result);
     });
 });
 
 app.post("/categories", (req, res) => {
+    const name = (req.body.category_name || "").trim();
 
-    const { category_name } = req.body;
+    if (!name) {
+        return res.status(400).json({ message: "Category name is required." });
+    }
 
-    const sql = `
-        INSERT INTO categories (category_name)
-        VALUES (?)
-    `;
-
-    db.query(sql, [category_name], (err, result) => {
-
-        if (err) {
-            return res.status(500).json(err);
+    db.query(
+        "INSERT INTO categories (category_name) VALUES (?)",
+        [name],
+        (err, result) => {
+            if (err) return fail(res, err, "Error adding category.");
+            res.json({
+                message: "Category added successfully!",
+                category_id: result.insertId
+            });
         }
-
-        res.json({
-            message: "Category added successfully!",
-            category_id: result.insertId
-        });
-    });
+    );
 });
-
 
 app.delete("/categories/:id", (req, res) => {
-
     const { id } = req.params;
 
-    const sql = `
-        DELETE FROM categories
-        WHERE category_id = ?
-    `;
+    // remove links first so the delete doesn't hit a foreign-key error
+    db.query("DELETE FROM task_categories WHERE category_id = ?", [id], (err) => {
+        if (err) return fail(res, err, "Error deleting category.");
 
-    db.query(sql, [id], (err, result) => {
-
-        if (err) {
-            return res.status(500).json(err);
-        }
-
-        res.json({
-            message: "Category deleted successfully!"
+        db.query("DELETE FROM categories WHERE category_id = ?", [id], (err) => {
+            if (err) return fail(res, err, "Error deleting category.");
+            res.json({ message: "Category deleted successfully!" });
         });
     });
 });
 
-app.get("/tasks", (req, res) => {
+/* ===================== TASKS ===================== */
 
+app.get("/tasks", (req, res) => {
     const userId = req.query.user_id;
 
     if (!userId) {
-        return res.status(400).json({
-            message: "User ID is required."
-        });
+        return res.status(400).json({ message: "User ID is required." });
     }
 
     const sql = `
-        SELECT 
+        SELECT
             tasks.*,
+            task_categories.category_id,
             categories.category_name
         FROM tasks
         LEFT JOIN task_categories
@@ -95,36 +85,22 @@ app.get("/tasks", (req, res) => {
     `;
 
     db.query(sql, [userId], (err, results) => {
-
-        if (err) {
-            console.error(err);
-
-            return res.status(500).json({
-                message: "Error fetching tasks."
-            });
-        }
-
+        if (err) return fail(res, err, "Error fetching tasks.");
         res.json(results);
     });
-
 });
-app.post("/tasks", (req, res) => {
 
+app.post("/tasks", (req, res) => {
     const {
-        project_id,
-        title,
-        description,
-        priority,
-        status,
-        due_date,
-        category_id,
-        user_id
+        project_id, title, description, priority,
+        status, due_date, category_id, user_id
     } = req.body;
 
     if (!user_id) {
-        return res.status(400).json({
-            message: "User ID is required."
-        });
+        return res.status(400).json({ message: "User ID is required." });
+    }
+    if (!title || !due_date) {
+        return res.status(400).json({ message: "Title and due date are required." });
     }
 
     const taskSql = `
@@ -135,110 +111,68 @@ app.post("/tasks", (req, res) => {
 
     db.query(
         taskSql,
-        [
-            project_id,
-            title,
-            description,
-            priority,
-            status,
-            due_date,
-            user_id
-        ],
+        [project_id, title, description, priority, status, due_date, user_id],
         (err, result) => {
-
-            if (err) {
-                console.error(err);
-                return res.status(500).json(err);
-            }
+            if (err) return fail(res, err, "Error adding task.");
 
             const taskId = result.insertId;
 
-            const categorySql = `
-                INSERT INTO task_categories
-                (task_id, category_id)
-                VALUES (?, ?)
-            `;
+            if (!category_id) {
+                return res.json({ message: "Task added successfully!", task_id: taskId });
+            }
 
             db.query(
-                categorySql,
+                "INSERT INTO task_categories (task_id, category_id) VALUES (?, ?)",
                 [taskId, category_id],
                 (err) => {
-
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).json(err);
-                    }
-
-                    res.json({
-                        message: "Task added successfully!",
-                        task_id: taskId
-                    });
-
+                    if (err) return fail(res, err, "Task added, but category failed.");
+                    res.json({ message: "Task added successfully!", task_id: taskId });
                 }
             );
-
         }
     );
-
 });
 
 app.put("/tasks/:id", (req, res) => {
-
     const { id } = req.params;
-
-    const {
-        title,
-        description,
-        priority,
-        status,
-        due_date,
-        category_id
-    } = req.body;
+    const { title, description, priority, status, due_date, category_id } = req.body;
 
     const taskSql = `
         UPDATE tasks
-        SET title = ?,
-            description = ?,
-            priority = ?,
-            status = ?,
-            due_date = ?
+        SET title = ?, description = ?, priority = ?, status = ?, due_date = ?
         WHERE task_id = ?
     `;
 
     db.query(
         taskSql,
-        [
-            title,
-            description,
-            priority,
-            status,
-            due_date,
-            id
-        ],
+        [title, description, priority, status, due_date, id],
         (err) => {
+            if (err) return fail(res, err, "Error updating task.");
 
-            if (err) {
-                return res.status(500).json(err);
+            // no category sent: keep the existing one
+            if (!category_id) {
+                return res.json({ message: "Task updated successfully!" });
             }
 
-            const categorySql = `
-                UPDATE task_categories
-                SET category_id = ?
-                WHERE task_id = ?
-            `;
-
             db.query(
-                categorySql,
+                "UPDATE task_categories SET category_id = ? WHERE task_id = ?",
                 [category_id, id],
-                (err) => {
+                (err, r) => {
+                    if (err) return fail(res, err, "Error updating category.");
 
-                    if (err) {
-                        return res.status(500).json(err);
+                    // old tasks may have no category row yet: create it
+                    if (r.affectedRows === 0) {
+                        return db.query(
+                            "INSERT INTO task_categories (task_id, category_id) VALUES (?, ?)",
+                            [id, category_id],
+                            (err) => {
+                                if (err) return fail(res, err, "Error updating category.");
+                                res.json({ message: "Task updated successfully!" });
+                            }
+                        );
                     }
 
-                    res.json({
-                        message: "Task updated successfully!"
-                    });
+                    res.json({ message: "Task updated successfully!" });
                 }
             );
         }
@@ -246,141 +180,72 @@ app.put("/tasks/:id", (req, res) => {
 });
 
 app.delete("/tasks/:id", (req, res) => {
-
     const { id } = req.params;
 
-    const categorySql = `
-        DELETE FROM task_categories
-        WHERE task_id = ?
-    `;
+    db.query("DELETE FROM task_categories WHERE task_id = ?", [id], (err) => {
+        if (err) return fail(res, err, "Error deleting task.");
 
-    db.query(
-        categorySql,
-        [id],
-        (err) => {
-
-            if (err) {
-                return res.status(500).json(err);
-            }
-
-            const taskSql = `
-                DELETE FROM tasks
-                WHERE task_id = ?
-            `;
-
-            db.query(
-                taskSql,
-                [id],
-                (err) => {
-
-                    if (err) {
-                        return res.status(500).json(err);
-                    }
-
-                    res.json({
-                        message: "Task deleted successfully!"
-                    });
-                }
-            );
-        }
-    );
+        db.query("DELETE FROM tasks WHERE task_id = ?", [id], (err) => {
+            if (err) return fail(res, err, "Error deleting task.");
+            res.json({ message: "Task deleted successfully!" });
+        });
+    });
 });
-app.post("/signup", async (req, res) => {
 
-    const { name, email, password } = req.body;
+/* ===================== AUTH ===================== */
+
+app.post("/signup", async (req, res) => {
+    const name = (req.body.name || "").trim();
+    const email = (req.body.email || "").trim().toLowerCase();
+    const password = req.body.password;
 
     if (!name || !email || !password) {
-        return res.status(400).json({
-            message: "Please fill all fields."
-        });
+        return res.status(400).json({ message: "Please fill all fields." });
     }
 
     try {
-
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const sql = `
-            INSERT INTO users (name, email, password)
-            VALUES (?, ?, ?)
-        `;
-
         db.query(
-            sql,
+            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
             [name, email, hashedPassword],
-            (err, result) => {
-
+            (err) => {
                 if (err) {
-
                     if (err.code === "ER_DUP_ENTRY") {
-                        return res.status(409).json({
-                            message: "Email already registered."
-                        });
+                        return res.status(409).json({ message: "Email already registered." });
                     }
-
-                    console.error(err);
-
-                    return res.status(500).json({
-                        message: "Error creating account."
-                    });
+                    return fail(res, err, "Error creating account.");
                 }
-
-                res.status(201).json({
-                    message: "Account created successfully!"
-                });
-
+                res.status(201).json({ message: "Account created successfully!" });
             }
         );
-
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            message: "Error securing password."
-        });
-
+        fail(res, error, "Error securing password.");
     }
-
 });
-app.post("/login", async (req, res) => {
 
-    const { email, password } = req.body;
+app.post("/login", (req, res) => {
+    const email = (req.body.email || "").trim().toLowerCase();
+    const password = req.body.password;
 
     if (!email || !password) {
-        return res.status(400).json({
-            message: "Please enter email and password."
-        });
+        return res.status(400).json({ message: "Please enter email and password." });
     }
 
-    const sql = "SELECT * FROM users WHERE email = ?";
-
-    db.query(sql, [email], async (err, results) => {
-
-        if (err) {
-            console.error(err);
-
-            return res.status(500).json({
-                message: "Server error."
-            });
-        }
+    db.query("SELECT * FROM users WHERE email = ?", [email], async (err, results) => {
+        if (err) return fail(res, err, "Server error.");
 
         if (results.length === 0) {
-            return res.status(401).json({
-                message: "Invalid email or password."
-            });
+            return res.status(401).json({ message: "Invalid email or password." });
         }
 
         const user = results[0];
 
         try {
-
-            const passwordMatch =
-                await bcrypt.compare(password, user.password);
+            const passwordMatch = await bcrypt.compare(password, user.password);
 
             if (!passwordMatch) {
-                return res.status(401).json({
-                    message: "Invalid email or password."
-                });
+                return res.status(401).json({ message: "Invalid email or password." });
             }
 
             res.json({
@@ -391,20 +256,12 @@ app.post("/login", async (req, res) => {
                     email: user.email
                 }
             });
-
         } catch (error) {
-
-            console.error(error);
-
-            res.status(500).json({
-                message: "Login failed."
-            });
-
+            fail(res, error, "Login failed.");
         }
-
     });
-
 });
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
