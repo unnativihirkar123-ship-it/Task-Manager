@@ -356,7 +356,7 @@ app.post("/api/progress", (req, res) => {
 });
 
 
-// Record today's study activity
+/// Record today's study activity and update streak
 app.post("/api/progress/study", async (req, res) => {
     try {
         const { user_id } = req.body;
@@ -369,7 +369,7 @@ app.post("/api/progress/study", async (req, res) => {
 
         const today = new Date().toISOString().split("T")[0];
 
-        // Update today's study activity
+        // Save today's study activity
         await db.promise().query(
             `INSERT INTO study_activity (user_id, study_date, completed)
              VALUES (?, ?, TRUE)
@@ -377,10 +377,45 @@ app.post("/api/progress/study", async (req, res) => {
             [user_id, today]
         );
 
+        // Get all completed study dates, newest first
+        const [rows] = await db.promise().query(
+            `SELECT study_date
+             FROM study_activity
+             WHERE user_id = ? AND completed = TRUE
+             ORDER BY study_date DESC`,
+            [user_id]
+        );
+
+        // Calculate current streak
+        let streak = 0;
+        let checkDate = new Date(today);
+
+        for (const row of rows) {
+            const studyDate = String(row.study_date).substring(0, 10);
+
+            const expectedDate = checkDate.toISOString().split("T")[0];
+
+            if (studyDate === expectedDate) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else if (studyDate < expectedDate) {
+                break;
+            }
+        }
+
+        // Update user_progress streak
+        await db.promise().query(
+            `UPDATE user_progress
+             SET study_streak = ?
+             WHERE user_id = ?`,
+            [streak, user_id]
+        );
+
         res.json({
             success: true,
             message: "Study activity recorded successfully",
-            study_date: today
+            study_date: today,
+            study_streak: streak
         });
 
     } catch (error) {
@@ -392,7 +427,6 @@ app.post("/api/progress/study", async (req, res) => {
         });
     }
 });
-
 
 // Manually update streak
 app.post("/api/progress/update-streak", (req, res) => {
