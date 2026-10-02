@@ -357,6 +357,7 @@ app.post("/api/progress", (req, res) => {
 
 
 /// Record today's study activity and update streak
+
 app.post("/api/progress/study", async (req, res) => {
     try {
         const { user_id } = req.body;
@@ -369,7 +370,7 @@ app.post("/api/progress/study", async (req, res) => {
 
         const today = new Date().toISOString().split("T")[0];
 
-        // Save today's study activity
+        // 1. Save today's study activity
         await db.promise().query(
             `INSERT INTO study_activity (user_id, study_date, completed)
              VALUES (?, ?, TRUE)
@@ -377,7 +378,7 @@ app.post("/api/progress/study", async (req, res) => {
             [user_id, today]
         );
 
-        // Get all completed study dates, newest first
+        // 2. Get all completed study dates
         const [rows] = await db.promise().query(
             `SELECT study_date
              FROM study_activity
@@ -386,13 +387,12 @@ app.post("/api/progress/study", async (req, res) => {
             [user_id]
         );
 
-        // Calculate current streak
+        // 3. Calculate current streak
         let streak = 0;
         let checkDate = new Date(today);
 
         for (const row of rows) {
             const studyDate = String(row.study_date).substring(0, 10);
-
             const expectedDate = checkDate.toISOString().split("T")[0];
 
             if (studyDate === expectedDate) {
@@ -403,12 +403,15 @@ app.post("/api/progress/study", async (req, res) => {
             }
         }
 
-        // Update user_progress streak
+        // 4. Create progress row if user doesn't have one
         await db.promise().query(
-            `UPDATE user_progress
-             SET study_streak = ?
-             WHERE user_id = ?`,
-            [streak, user_id]
+            `INSERT INTO user_progress
+             (user_id, study_streak, last_study_date)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+             study_streak = VALUES(study_streak),
+             last_study_date = VALUES(last_study_date)`,
+            [user_id, streak, today]
         );
 
         res.json({
