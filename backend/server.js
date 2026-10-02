@@ -279,6 +279,7 @@ app.get("/api/progress/:user_id", (req, res) => {
 
 
 // Save exam details
+// Save or update user's exam details
 app.post("/api/progress", (req, res) => {
     const {
         user_id,
@@ -292,18 +293,64 @@ app.post("/api/progress", (req, res) => {
         });
     }
 
+    // Check whether this user already has an exam
     db.query(
-        `INSERT INTO user_progress
-        (user_id, exam_name, exam_date, study_streak, last_study_date)
-        VALUES (?, ?, ?, 0, NULL)`,
-        [user_id, exam_name, exam_date],
-        (err, result) => {
-            if (err) return fail(res, err, "Error saving exam progress.");
+        "SELECT progress_id FROM user_progress WHERE user_id = ? LIMIT 1",
+        [user_id],
+        (err, results) => {
+            if (err) {
+                return fail(res, err, "Error checking exam progress.");
+            }
 
-            res.status(201).json({
-                message: "Exam progress saved successfully!",
-                progress_id: result.insertId
-            });
+            // If exam already exists → update it
+            if (results.length > 0) {
+                const progressId = results[0].progress_id;
+
+                db.query(
+                    `UPDATE user_progress
+                     SET exam_name = ?, exam_date = ?, updated_at = CURRENT_TIMESTAMP
+                     WHERE progress_id = ?`,
+                    [exam_name.trim(), exam_date, progressId],
+                    (err) => {
+                        if (err) {
+                            return fail(
+                                res,
+                                err,
+                                "Error updating exam progress."
+                            );
+                        }
+
+                        res.json({
+                            message: "Exam details updated successfully!",
+                            progress_id: progressId
+                        });
+                    }
+                );
+
+                return;
+            }
+
+            // If user has no exam → create one
+            db.query(
+                `INSERT INTO user_progress
+                 (user_id, exam_name, exam_date, study_streak, last_study_date)
+                 VALUES (?, ?, ?, 0, NULL)`,
+                [user_id, exam_name.trim(), exam_date],
+                (err, result) => {
+                    if (err) {
+                        return fail(
+                            res,
+                            err,
+                            "Error saving exam progress."
+                        );
+                    }
+
+                    res.status(201).json({
+                        message: "Exam saved successfully!",
+                        progress_id: result.insertId
+                    });
+                }
+            );
         }
     );
 });

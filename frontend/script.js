@@ -34,42 +34,143 @@ $("userName").textContent = user?.name || user?.user_name || "";
 $("logoutBtn").onclick = () => { localStorage.removeItem("user"); location.href = "login.html"; };
 
 /* ---------- streak + weekly log ---------- */
-function logDone() {
-    const log = store("tm_done", {}), t = today();
-    log[t] = (log[t] || 0) + 1; localStorage.setItem("tm_done", JSON.stringify(log));
-    const s = store("tm_streak", { last: "", count: 0 });
-    if (s.last !== t) {
-        const y = new Date(); y.setDate(y.getDate() - 1);
-        s.count = s.last === ymd(y) ? s.count + 1 : 1; s.last = t;
-        localStorage.setItem("tm_streak", JSON.stringify(s));
+/* ---------- streak + weekly log ---------- */
+
+async function logDone() {
+    try {
+        const data = await req("/api/progress/study", "POST", {
+            user_id: user.user_id
+        });
+
+        $("streakCount").textContent = data.study_streak;
+
+        await loadWeeklyProgress();
+
+    } catch (err) {
+        console.error(err);
+        toast("Unable to update study streak.");
     }
-    renderStreak();
-}
-function renderStreak() {
-    const s = store("tm_streak", { last: "", count: 0 }), y = new Date(); y.setDate(y.getDate() - 1);
-    $("streakCount").textContent = (s.last === today() || s.last === ymd(y)) ? s.count : 0;
-    const log = store("tm_done", {}), days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return d; });
-    const max = Math.max(1, ...days.map(d => log[ymd(d)] || 0));
-    $("weekChart").innerHTML = days.map(d => {
-        const n = log[ymd(d)] || 0;
-        return `<div title="${n} done"><i style="height:${n / max * 70}%"></i>${d.toLocaleDateString(undefined, { weekday: "narrow" })}</div>`;
-    }).join("");
 }
 
+async function renderStreak() {
+    try {
+        const progress = await req(`/api/progress/${user.user_id}`);
+
+        if (progress.length > 0) {
+            $("streakCount").textContent = progress[0].study_streak || 0;
+        } else {
+            $("streakCount").textContent = 0;
+        }
+
+        await loadWeeklyProgress();
+
+    } catch (err) {
+        console.error(err);
+        $("streakCount").textContent = 0;
+    }
+}
+
+async function loadWeeklyProgress() {
+    try {
+        const data = await req(`/api/progress/week/${user.user_id}`);
+
+        const log = {};
+
+        data.forEach(item => {
+            const date = String(item.study_date).substring(0, 10);
+            log[date] = 1;
+        });
+
+        const days = [...Array(7)].map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - 6 + i);
+            return d;
+        });
+
+        $("weekChart").innerHTML = days.map(d => {
+            const date = ymd(d);
+            const studied = log[date];
+
+            return `
+                <div title="${studied ? "Study completed" : "No study"}">
+                    <i style="height:${studied ? 70 : 10}%"></i>
+                    ${d.toLocaleDateString(undefined, {
+                        weekday: "narrow"
+                    })}
+                </div>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error(err);
+    }
+}
 /* ---------- exam countdown ---------- */
-function renderExam() {
-    const e = store("tm_exam", null); if (!e) return;
-    const days = Math.ceil((new Date(e.date) - new Date(today())) / 864e5);
-    $("examDays").textContent = days >= 0 ? days : "Done";
-    $("examLabel").textContent = days >= 0 ? `days until ${e.name}` : `${e.name} has passed`;
-    $("examName").value = e.name; $("examDate").value = e.date;
-}
-$("examSave").onclick = () => {
-    if (!$("examDate").value) return toast("Pick an exam date");
-    localStorage.setItem("tm_exam", JSON.stringify({ name: $("examName").value || "Exam", date: $("examDate").value }));
-    renderExam(); toast("Exam saved");
-};
+/* ---------- exam countdown ---------- */
 
+async function renderExam() {
+    try {
+        const progress = await req(`/api/progress/${user.user_id}`);
+
+        if (!progress.length) {
+            $("examDays").textContent = "--";
+            $("examLabel").textContent = "Set your next exam";
+            $("examName").value = "";
+            $("examDate").value = "";
+            return;
+        }
+
+        const exam = progress[0];
+        const examDate = String(exam.exam_date).substring(0, 10);
+
+        const days = Math.ceil(
+            (new Date(examDate) - new Date(today())) / 864e5
+        );
+
+        $("examDays").textContent = days >= 0 ? days : "Done";
+
+        $("examLabel").textContent =
+            days >= 0
+                ? `days until ${exam.exam_name}`
+                : `${exam.exam_name} has passed`;
+
+        $("examName").value = exam.exam_name;
+        $("examDate").value = examDate;
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+
+$("examSave").onclick = async () => {
+    const name = $("examName").value.trim();
+    const date = $("examDate").value;
+
+    if (!name) {
+        return toast("Enter exam name");
+    }
+
+    if (!date) {
+        return toast("Pick an exam date");
+    }
+
+    try {
+        await req("/api/progress", "POST", {
+            user_id: user.user_id,
+            exam_name: name,
+            exam_date: date
+        });
+
+        await renderExam();
+
+        toast("Exam saved successfully!");
+
+    } catch (err) {
+        console.error(err);
+        toast(err.message);
+    }
+};
 /* ---------- pomodoro ---------- */
 let pomo = { mode: 25, left: 1500, id: null };
 const showTimer = () => $("timerView").textContent = `${String(Math.floor(pomo.left / 60)).padStart(2, "0")}:${String(pomo.left % 60).padStart(2, "0")}`;
@@ -243,4 +344,8 @@ document.querySelectorAll(".tab").forEach(b => b.onclick = () => setView(b.datas
 [searchTask].forEach(el => el.addEventListener("input", applyFilters));
 [statusFilter, priorityFilter, sortTasks].forEach(el => el.addEventListener("change", applyFilters));
 
-renderStreak(); renderExam(); showTimer(); loadCategories(); loadTasks(true);
+renderStreak();
+renderExam();
+showTimer();
+loadCategories();
+loadTasks(true);
