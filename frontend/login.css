@@ -1,230 +1,173 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #f8f3e8;
-  --card: #fdf9ef;
-  --border: #eadfc8;
-  --ink: #1d1f27;
-  --muted: #8a8577;
-  --dark: #1b1d25;
-  --accent: #c98a2b;
-  --accent-hover: #b37820;
-  --input-bg: #f5eedd;
+    --bg: #FAF6EE;
+    --card: #fff;
+    --ink: #1F2430;
+    --soft: #6B6558;
+    --line: #E8DFCB;
+    --gold: #C98A2B;
+    --gold-soft: #F5E6C8;
+    --field: #FAF6EE
 }
-*
- {
+
+* {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0
 }
 
 body {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  font-family: 'Inter', sans-serif;
-  color: var(--ink);
-  background-color: var(--bg);
-  background-image: radial-gradient(#e3d8bf 1px, transparent 1px);
-  background-size: 18px 18px;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--bg)
 }
 
-/* dark band across the top, like the dashboard header */
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: 38vh;
-  background: linear-gradient(180deg, #1b1d25, #15171d);
-  border-bottom: 3px solid var(--accent);
-  z-index: -1;
+    content: "";
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 42vh;
+    background: #1D2128;
+    border-bottom: 3px solid var(--gold);
+    z-index: -1
 }
 
 .auth-container {
     width: 100%;
-    max-width: 420px;
-    padding: 20px;
+    max-width: 420px
 }
 
 .auth-card {
-    background: rgba(255, 255, 255, 0.96);
-    padding: 35px;
-    border-radius: 25px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28)
 }
 
 .auth-logo {
-    width: 65px;
-    height: 65px;
-    margin: 0 auto 15px;
-    border-radius: 18px;
-    background: #eef2ff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 14px;
+    border-radius: 16px;
+    background: var(--gold-soft);
+    display: grid;
+    place-items: center;
+    font-size: 28px
 }
 
 .auth-card h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
     text-align: center;
-    margin: 0;
-    color: #1e293b;
+    line-height: 1.2
 }
 
 .subtitle {
     text-align: center;
-    color: #94a3b8;
-    font-size: 13px;
-    margin-bottom: 25px;
+    color: var(--soft);
+    font-size: 14px;
+    margin: 6px 0 24px
 }
 
 .tabs {
     display: flex;
-    background: #f1f5f9;
+    gap: 4px;
     padding: 4px;
-    border-radius: 12px;
     margin-bottom: 22px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 12px
 }
 
 .tabs button {
-    width: 50%;
-    padding: 11px;
-    border: none;
+    flex: 1;
+    padding: 10px;
+    border: 0;
     border-radius: 9px;
     background: transparent;
-    cursor: pointer;
+    color: var(--soft);
+    font: inherit;
     font-weight: 600;
-    color: #64748b;
+    cursor: pointer;
+    transition: background .15s, color .15s
 }
 
 .tabs button.active {
-    background: white;
-    color: #4f46e5;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    background: var(--gold);
+    color: var(--ink)
+}
+
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px
 }
 
 .auth-card input {
     width: 100%;
-    padding: 13px 14px;
-    margin-bottom: 13px;
-    border: 1px solid #e2e8f0;
+    padding: 13px 15px;
+    font: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--field);
+    border: 1px solid var(--line);
     border-radius: 11px;
     outline: none;
-    font-size: 14px;
+    transition: border-color .15s, box-shadow .15s
+}
+
+.auth-card input::placeholder {
+    color: #A39C8D
 }
 
 .auth-card input:focus {
-    outline: none;
-    border-color: #c98a2b;
-    box-shadow: 0 0 0 3px rgba(201, 138, 43, 0.2);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-soft)
 }
 
 .auth-button {
-    width: 100%;
+    margin-top: 4px;
     padding: 13px;
-    border: none;
+    border: 0;
     border-radius: 11px;
-    background: #c98a2b;
-    color: #fff;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
+    background: var(--gold);
+    color: var(--ink);
+    font: inherit;
+    font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    margin-top: 5px;
-    transition: background 0.15s, transform 0.1s;
+    transition: filter .15s, transform .1s
 }
 
 .auth-button:hover {
-    background: #b37820;
+    filter: brightness(1.08)
 }
 
 .auth-button:active {
-    transform: translateY(1px);
+    transform: translateY(1px)
 }
 
 #authMessage {
+    min-height: 18px;
+    margin-top: 16px;
     text-align: center;
     font-size: 13px;
-    margin-top: 18px;
-    min-height: 18px;
-    color: #8a8577;
-
-}
-.login-card {            /* your white card */
-  width: 100%;
-  max-width: 420px;
-  padding: 36px 32px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    color: var(--soft)
 }
 
-.login-card h1 {         /* "Task Manager" */
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  color: var(--ink);
-}
-.login-card .subtitle { color: var(--muted); }
-
-.tabs {                  /* Login | Sign Up switcher */
-  display: flex;
-  background: var(--input-bg);
-  border-radius: 12px;
-  padding: 5px;
-}
-.tabs button {
-  flex: 1;
-  padding: 10px;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font-weight: 600;
-  border-radius: 9px;
-  cursor: pointer;
-}
-.tabs button.active {
-  background: var(--card);
-  color: var(--accent);
-  box-shadow: 0 1px 4px rgba(0,0,0,.12);
-}
-.login-card input {
-  width: 100%;
-  padding: 14px 16px;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--ink);
-  font-size: 15px;
-  transition: border-color .15s, box-shadow .15s;
-}
-.login-card input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(201,138,43,.2);
+button:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px
 }
 
-.login-card button[type="submit"] {
-  width: 100%;
-  padding: 14px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #fff;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background .15s, transform .1s;
-}
-.login-card button[type="submit"]:hover { background: var(--accent-hover); }
-.login-card button[type="submit"]:active { transform: translateY(1px); }
-
-#message { color: var(--muted); text-align: center; } /* "Login successful!" */
-
-.logo-icon {
-  width: 56px; height: 56px;
-  display: grid; place-items: center;
-  margin: 0 auto 12px;
-  background: #f1e2c3;
-  border-radius: 14px;
-  font-size: 26px;
+@media(max-width:480px) {
+    .auth-card {
+        padding: 28px 20px
+    }
 }

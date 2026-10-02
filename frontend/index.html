@@ -7,366 +7,213 @@
     <title>Task Manager</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
     <header>
-
         <nav class="navbar">
-
-            <div class="logo">
-                <span class="logo-mark">&#9998;</span>
-                <span>Task Manager</span>
-            </div>
-
+            <div class="logo"><span class="logo-mark">&#9998;</span>Task Manager</div>
             <div class="nav-links">
-                <a href="#dashboard">Dashboard</a>
-                <a href="#addTask">Add Task</a>
-                <a href="#categories">Categories</a>
-                <a href="#myTasks">My Tasks</a>
+                <a href="#dashboard">Dashboard</a><a href="#categories">Categories</a><a href="#myTasks">My Tasks</a>
             </div>
-
-            <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
-
+            <div class="user-area">
+                <span id="userName" class="user-name"></span>
+                <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+            </div>
         </nav>
-
         <div class="hero">
-
             <div class="hero-copy">
-                <h1>Every task,<br>filed and in order.</h1>
-                <p>Log what needs doing, sort it by priority, and watch the completed stack grow.</p>
+                <h1 id="greeting">Hello</h1>
+                <p id="todayDate"></p>
+                <p id="heroLine">Log what needs doing and watch the finished pile grow.</p>
             </div>
-
-            <div class="hero-stamp" aria-hidden="true">
-                <span class="hero-stamp-mark">&#10003;</span>
-                <small>On track</small>
+            <div class="ring" id="ring">
+                <div><strong id="ringPct">0%</strong><small>done</small></div>
             </div>
-
         </div>
-
     </header>
 
-
-    <section class="dashboard" id="dashboard">
-
-        <div class="tally-row">
-
-            <div class="stat-card clickable-card" onclick="filterDashboard('All')">
-                <span class="stat-card-icon">📋</span>
-                <div class="stat-card-body">
-                    <p id="totalTasks">0</p>
-                    <h3>Total tasks</h3>
-                </div>
-            </div>
-
-            <div class="stat-card clickable-card" onclick="filterDashboard('Completed')">
-                <span class="stat-card-icon">✅</span>
-                <div class="stat-card-body">
-                    <p id="completedTasks">0</p>
-                    <h3>Completed</h3>
-                </div>
-            </div>
-
-            <div class="stat-card clickable-card" onclick="filterDashboard('In Progress')">
-                <span class="stat-card-icon">⏳</span>
-                <div class="stat-card-body">
-                    <p id="progressTasks">0</p>
-                    <h3>In progress</h3>
-                </div>
-            </div>
-
-            <div class="stat-card clickable-card" onclick="filterDashboard('Pending')">
-                <span class="stat-card-icon">📝</span>
-                <div class="stat-card-body">
-                    <p id="pendingTasks">0</p>
-                    <h3>Pending</h3>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="progress-card">
-
-            <div class="progress-header">
-                <h3>Overall progress</h3>
-                <strong id="progressPercentage">0%</strong>
-            </div>
-
-            <div class="progress-bar">
-                <div id="progressFill"></div>
-            </div>
-
-            <p id="progressText">0 of 0 tasks completed</p>
-
-        </div>
-
-        <div class="quick-actions">
-
-            <h2>What's next?</h2>
-
-            <div class="quick-action-grid">
-
-                <button type="button" class="quick-action" onclick="goToSection('addTask')">
-                    <span class="plus">+</span>
-                    <div>
-                        <strong>Add a task</strong>
-                        <small>Log something new</small>
-                    </div>
+    <main class="wrap">
+        <section id="dashboard">
+            <div class="stats">
+                <button class="stat" onclick="filterDashboard('All')"><span>📋</span>
+                    <div><b id="totalTasks">0</b><small>Total</small></div>
                 </button>
-
-                <button type="button" class="quick-action" onclick="goToSection('categories')">
-                    <span>🏷️</span>
-                    <div>
-                        <strong>Categories</strong>
-                        <small>Sort your labels</small>
-                    </div>
+                <button class="stat" onclick="filterDashboard('Completed')"><span>✅</span>
+                    <div><b id="completedTasks">0</b><small>Completed</small></div>
                 </button>
-
-                <button type="button" class="quick-action" onclick="goToSection('myTasks')">
-                    <span>📌</span>
-                    <div>
-                        <strong>View tasks</strong>
-                        <small>See the full list</small>
-                    </div>
+                <button class="stat" onclick="filterDashboard('In Progress')"><span>⏳</span>
+                    <div><b id="progressTasks">0</b><small>In progress</small></div>
                 </button>
-
+                <button class="stat" onclick="filterDashboard('Pending')"><span>📝</span>
+                    <div><b id="pendingTasks">0</b><small>Pending</small></div>
+                </button>
+            </div>
+            <div class="card">
+                <div class="row">
+                    <h3>Overall progress</h3><strong id="progressPercentage" class="gold">0%</strong>
+                </div>
+                <div class="bar">
+                    <div id="progressFill"></div>
+                </div>
+                <small id="progressText">0 of 0 tasks completed</small>
             </div>
 
-        </div>
-
-    </section>
-
-
-    <!-- Add Task + Categories side by side -->
-    <div class="two-col">
-
-        <section class="form-container" id="addTask">
-
-            <div class="section-heading">
-                <span class="section-tab tab-amber" aria-hidden="true"></span>
-                <h2>Add a new task</h2>
+            <div class="widgets">
+                <div class="card">
+                    <h3>Focus timer</h3>
+                    <div class="timer" id="timerView">25:00</div>
+                    <div class="btns">
+                        <button class="btn gold-btn" id="timerStart">Start</button>
+                        <button class="btn ghost" id="timerMode">Break</button>
+                        <button class="btn ghost" id="timerReset">Reset</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Exam countdown</h3>
+                    <div class="big" id="examDays">--</div>
+                    <small id="examLabel">Set your next exam</small>
+                    <div class="exam-form">
+                        <input type="text" id="examName" placeholder="e.g. GATE">
+                        <input type="date" id="examDate">
+                        <button class="btn gold-btn" id="examSave">Save</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Study streak</h3>
+                    <div class="big"><span id="streakCount">0</span> <small>days</small></div>
+                    <small>Complete a task each day to keep it alive.</small>
+                </div>
+                <div class="card">
+                    <h3>This week</h3>
+                    <div class="chart" id="weekChart"></div>
+                </div>
             </div>
+        </section>
 
+        <section class="card" id="categories">
+            <h2>Categories</h2>
+            <form id="categoryForm" class="inline-form">
+                <input type="text" id="categoryName" placeholder="New category name" required>
+                <button type="submit" class="btn gold-btn">Add</button>
+            </form>
+            <div id="categoryList"></div>
+        </section>
+
+        <section id="myTasks">
+            <div class="tasks-head">
+                <h2>My tasks</h2>
+                <div class="tabs" id="viewTabs">
+                    <button class="tab on" data-view="all">All</button>
+                    <button class="tab" data-view="today">Today</button>
+                    <button class="tab" data-view="upcoming">Upcoming</button>
+                    <button class="tab" data-view="overdue">Overdue</button>
+                </div>
+            </div>
+            <div class="filters">
+                <input type="text" id="searchTask" placeholder="Search tasks...">
+                <select id="statusFilter">
+                    <option value="All">All status</option>
+                    <option>Pending</option>
+                    <option>In Progress</option>
+                    <option>Completed</option>
+                </select>
+                <select id="priorityFilter">
+                    <option value="All">All priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                <select id="sortTasks">
+                    <option value="default">Sort tasks</option>
+                    <option value="dueSoon">Due: soonest</option>
+                    <option value="dueLate">Due: latest</option>
+                    <option value="priorityHigh">Priority: high first</option>
+                    <option value="priorityLow">Priority: low first</option>
+                </select>
+            </div>
+            <div id="taskList"></div>
+        </section>
+    </main>
+
+    <button class="fab" id="fab" onclick="openAdd()">+ New Task</button>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAdd()">&times;</span>
+            <h2>New task</h2>
             <form id="taskForm">
-
                 <input type="text" id="title" placeholder="Task title" required>
-
                 <textarea id="description" placeholder="Describe what needs to be done..."></textarea>
-
-                <div class="field-row">
-
+                <div class="two">
                     <select id="priority">
                         <option value="Low">Low priority</option>
                         <option value="Medium" selected>Medium priority</option>
                         <option value="High">High priority</option>
                     </select>
-
-                    <select id="category">
-                        <option value="1">College</option>
-                        <option value="2">Programming</option>
-                        <option value="3">Important</option>
-                    </select>
-
+                    <select id="category"></select>
                 </div>
-
-                <div class="field-row">
-
+                <div class="two">
                     <select id="status">
                         <option value="Pending">Pending</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Completed">Completed</option>
                     </select>
-
                     <input type="date" id="due_date" required>
-
                 </div>
-
-                <button type="submit">Add task</button>
-
+                <button type="submit" class="btn gold-btn">Add task</button>
             </form>
-
-        </section>
-
-
-        <section class="category-container" id="categories">
-
-            <div class="section-heading">
-                <span class="section-tab tab-pine" aria-hidden="true"></span>
-                <h2>Manage categories</h2>
-            </div>
-
-            <form id="categoryForm">
-
-                <input type="text" id="categoryName" placeholder="Enter category name" required>
-
-                <button type="submit">Add category</button>
-
-            </form>
-
-            <div id="categoryList"></div>
-
-        </section>
-
-    </div>
-
-
-    <section class="tasks-section" id="myTasks">
-
-        <div class="tasks-header">
-
-            <div class="section-heading">
-                <span class="section-tab tab-rust" aria-hidden="true"></span>
-                <h2>My tasks</h2>
-            </div>
-
-            <div class="task-filters">
-
-                <input type="text" id="searchTask" placeholder="Search tasks...">
-
-                <select id="statusFilter">
-                    <option value="All">All status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                </select>
-
-                <select id="priorityFilter">
-                    <option value="All">All priority</option>
-                    <option value="High">High priority</option>
-                    <option value="Medium">Medium priority</option>
-                    <option value="Low">Low priority</option>
-                </select>
-
-                <select id="sortTasks">
-                    <option value="default">Sort tasks</option>
-                    <option value="dueSoon">Due date: soonest</option>
-                    <option value="dueLate">Due date: latest</option>
-                    <option value="priorityHigh">Priority: high to low</option>
-                    <option value="priorityLow">Priority: low to high</option>
-                </select>
-
-            </div>
-
         </div>
-
-        <div id="taskList"></div>
-
-    </section>
-
+    </div>
 
     <div id="editModal" class="modal">
-
         <div class="modal-content">
-
             <span class="close" onclick="closeEditModal()">&times;</span>
-
             <h2>Edit task</h2>
-
             <form id="editForm">
-
                 <input type="hidden" id="editTaskId">
-
-                <input type="text" id="editTitle" placeholder="Task title" required>
-
-                <textarea id="editDescription" placeholder="Task description"></textarea>
-
-                <div class="field-row">
-
+                <input type="text" id="editTitle" required>
+                <textarea id="editDescription"></textarea>
+                <div class="two">
                     <select id="editPriority">
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
                     </select>
-
                     <select id="editStatus">
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
+                        <option>Pending</option>
+                        <option>In Progress</option>
+                        <option>Completed</option>
                     </select>
-
                 </div>
-
-                <select id="editCategory">
-                    <option value="1">College</option>
-                    <option value="2">Programming</option>
-                    <option value="3">Important</option>
-                </select>
-
+                <select id="editCategory"></select>
                 <input type="date" id="editDueDate" required>
-
-                <button type="submit">Save changes</button>
-
+                <button type="submit" class="btn gold-btn">Save changes</button>
             </form>
-
         </div>
-
     </div>
-
 
     <div id="deleteModal" class="modal">
-
-        <div class="modal-content delete-box">
-
-            <span class="close" onclick="closeDeleteModal()">&times;</span>
-
-            <div class="delete-icon">🗑️</div>
-
+        <div class="modal-content" style="text-align:center">
             <h2>Delete this task?</h2>
-
-            <p>This action can't be undone.</p>
-
-            <div class="delete-buttons">
-
-                <button type="button" onclick="confirmDelete()">
-                    Yes, delete
-                </button>
-
-                <button type="button" onclick="closeDeleteModal()">
-                    Cancel
-                </button>
-
+            <p class="muted">This can't be undone.</p>
+            <div class="btns" style="justify-content:center">
+                <button class="btn danger" onclick="confirmDelete()">Yes, delete</button>
+                <button class="btn ghost" onclick="closeDeleteModal()">Cancel</button>
             </div>
-
         </div>
-
     </div>
 
-    <footer>
-
-        <div class="footer-content">
-
-            <div class="footer-brand">
-                <div class="logo"><span class="logo-mark">&#9998;</span> Task Manager</div>
-                <p>Log what needs doing, track it to done, and stay on top of the pile.</p>
-            </div>
-
-            <div class="footer-links">
-
-                <a href="#dashboard">Dashboard</a>
-                <a href="#addTask">Add Task</a>
-                <a href="#categories">Categories</a>
-                <a href="#myTasks">My Tasks</a>
-
-            </div>
-
-        </div>
-
-        <div class="footer-bottom">
-            <p>Task Manager &mdash; a DBMS project</p>
-            <span>Built with HTML, CSS, JavaScript &amp; MySQL</span>
-        </div>
-
-    </footer>
-
+    <div id="toast" class="toast"></div>
     <button id="backToTop" onclick="scrollToTop()" aria-label="Back to top">↑</button>
 
+    <footer>Task Manager &mdash; a DBMS project &middot; HTML, CSS, JavaScript &amp; MySQL</footer>
     <script src="script.js"></script>
-
-
 </body>
-
 
 </html>
