@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="520" height="128" role="img" aria-label="Stintlist">
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#232834" stroke="#4a3d28" stroke-width="2"/>
+  <path d="M16 20h14M16 28h9" stroke="#f0e6d2" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+  <path d="M16 38 L26 48 L38 30 C42 24 48 22 52 24" fill="none" stroke="#c98a2b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="52" cy="24" r="3" fill="#e8b45a"/>
+  <text x="76" y="42" font-family="'Space Grotesk','Segoe UI',Arial,sans-serif" font-size="30" font-weight="700" letter-spacing="-0.5">
+    <tspan fill="#232834">Stint</tspan><tspan fill="#c98a2b">list</tspan>
+  </text>
+</svg>

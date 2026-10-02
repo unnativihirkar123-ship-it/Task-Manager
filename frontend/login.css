@@ -178,13 +178,20 @@ button:focus-visible {
     }
 
     .auth-logo {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 16px;
-}
+        display: flex;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
 
-.auth-logo img {
-    height: 56px;
-    width: auto;
-}
+    .auth-logo img {
+        height: 56px;
+        width: auto;
+    }
+
+    .auth-logo {
+        display: flex;
+        justify-content: center;
+    }
+
+  
 }
