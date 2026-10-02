@@ -51,19 +51,21 @@ body::before {
 }
 
 /* STINTLIST LOGO */
+/* NAVBAR LOGO */
 .auth-logo {
-    width: 170px;
-    height: auto;
-    margin: 0 auto 18px;
+    width: auto;
+    height: 42px;
+    margin: 0;
     display: flex;
     align-items: center;
-    justify-content: center
+    justify-content: flex-start;
 }
 
 .auth-logo img {
-    width: 170px;
-    height: auto;
-    display: block
+    width: 145px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
 }
 
 .auth-card h1 {
@@ -182,16 +184,23 @@ button:focus-visible {
         justify-content: center;
         margin-bottom: 16px;
     }
-
-    .auth-logo img {
-        height: 56px;
-        width: auto;
-    }
+@media (max-width: 480px) {
 
     .auth-logo {
+        width: auto;
+        height: 36px;
+        margin: 0;
         display: flex;
-        justify-content: center;
+        align-items: center;
+        justify-content: flex-start;
     }
 
+    .auth-logo img {
+        width: 125px;
+        height: 36px;
+        object-fit: contain;
+    }
+
+}
   
 }
