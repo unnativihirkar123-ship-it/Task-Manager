@@ -102,7 +102,7 @@ app.get("/tasks", (req, res) => {
 app.post("/tasks", (req, res) => {
     const {
         project_id, title, description, priority,
-        status, due_date, due_time, est_hours, category_id, user_id
+        status, due_date, due_time, est_hours, category_id, user_id, deadline_id
     } = req.body;
 
     if (!user_id) {
@@ -119,13 +119,13 @@ app.post("/tasks", (req, res) => {
 
     const taskSql = `
         INSERT INTO tasks
-        (project_id, title, description, priority, status, due_date, due_time, est_hours, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (project_id, title, description, priority, status, due_date, due_time, est_hours, user_id, deadline_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
         taskSql,
-        [project_id, title, description, priority, status, due_date, cleanTime(due_time), hours, user_id],
+        [project_id, title, description, priority, status, due_date, cleanTime(due_time), hours, user_id, deadline_id || null],
         (err, result) => {
             if (err) return fail(res, err, "Error adding task.");
 
@@ -149,7 +149,7 @@ app.post("/tasks", (req, res) => {
 
 app.put("/tasks/:id", (req, res) => {
     const { id } = req.params;
-    const { title, description, priority, status, due_date, due_time, est_hours, category_id } = req.body;
+    const { title, description, priority, status, due_date, due_time, est_hours, category_id, deadline_id } = req.body;
 
     const hours = cleanHours(est_hours);
     if (badHours(hours)) {
@@ -159,13 +159,13 @@ app.put("/tasks/:id", (req, res) => {
     const taskSql = `
         UPDATE tasks
         SET title = ?, description = ?, priority = ?, status = ?,
-            due_date = ?, due_time = ?, est_hours = ?
+            due_date = ?, due_time = ?, est_hours = ?, deadline_id = ?
         WHERE task_id = ?
     `;
 
     db.query(
         taskSql,
-        [title, description, priority, status, due_date, cleanTime(due_time), hours, id],
+        [title, description, priority, status, due_date, cleanTime(due_time), hours, deadline_id || null, id],
         (err) => {
             if (err) return fail(res, err, "Error updating task.");
 
@@ -210,6 +210,113 @@ app.delete("/tasks/:id", (req, res) => {
             res.json({ message: "Task deleted successfully!" });
         });
     });
+});
+
+/* ===================== MAJOR DEADLINES ===================== */
+
+const DEADLINE_TYPES = ["Exam", "Project", "Assignment", "Other"];
+
+app.get("/deadlines", (req, res) => {
+    const userId = req.query.user_id;
+
+    if (!userId) {
+        return res.status(400).json({ message: "User ID is required." });
+    }
+
+    db.query(
+        "SELECT * FROM deadlines WHERE user_id = ? ORDER BY due_date ASC, deadline_id ASC",
+        [userId],
+        (err, results) => {
+            if (err) return fail(res, err, "Error fetching deadlines.");
+            res.json(results);
+        }
+    );
+});
+
+app.post("/deadlines", (req, res) => {
+    const { user_id, due_date } = req.body;
+    const title = (req.body.title || "").trim();
+    const type = req.body.deadline_type || "Project";
+
+    if (!user_id) {
+        return res.status(400).json({ message: "User ID is required." });
+    }
+    if (!title || !due_date) {
+        return res.status(400).json({ message: "Title and date are required." });
+    }
+    if (!DEADLINE_TYPES.includes(type)) {
+        return res.status(400).json({ message: "Invalid deadline type." });
+    }
+
+    db.query(
+        "INSERT INTO deadlines (user_id, title, deadline_type, due_date) VALUES (?, ?, ?, ?)",
+        [user_id, title, type, due_date],
+        (err, result) => {
+            if (err) return fail(res, err, "Error adding deadline.");
+            res.status(201).json({ message: "Deadline added!", deadline_id: result.insertId });
+        }
+    );
+});
+
+app.put("/deadlines/:id", (req, res) => {
+    const { id } = req.params;
+    const { user_id, due_date } = req.body;
+    const title = (req.body.title || "").trim();
+    const type = req.body.deadline_type || "Project";
+
+    if (!user_id) {
+        return res.status(400).json({ message: "User ID is required." });
+    }
+    if (!title || !due_date) {
+        return res.status(400).json({ message: "Title and date are required." });
+    }
+    if (!DEADLINE_TYPES.includes(type)) {
+        return res.status(400).json({ message: "Invalid deadline type." });
+    }
+
+    db.query(
+        `UPDATE deadlines
+         SET title = ?, deadline_type = ?, due_date = ?
+         WHERE deadline_id = ? AND user_id = ?`,
+        [title, type, due_date, id, user_id],
+        (err, result) => {
+            if (err) return fail(res, err, "Error updating deadline.");
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: "Deadline not found." });
+            }
+            res.json({ message: "Deadline updated!" });
+        }
+    );
+});
+
+app.delete("/deadlines/:id", (req, res) => {
+    const { id } = req.params;
+    const userId = req.query.user_id;
+
+    if (!userId) {
+        return res.status(400).json({ message: "User ID is required." });
+    }
+
+    // keep the tasks, just unlink them from this deadline
+    db.query(
+        "UPDATE tasks SET deadline_id = NULL WHERE deadline_id = ? AND user_id = ?",
+        [id, userId],
+        (err) => {
+            if (err) return fail(res, err, "Error deleting deadline.");
+
+            db.query(
+                "DELETE FROM deadlines WHERE deadline_id = ? AND user_id = ?",
+                [id, userId],
+                (err, result) => {
+                    if (err) return fail(res, err, "Error deleting deadline.");
+                    if (result.affectedRows === 0) {
+                        return res.status(404).json({ message: "Deadline not found." });
+                    }
+                    res.json({ message: "Deadline deleted!" });
+                }
+            );
+        }
+    );
 });
 
 /* ===================== AUTH ===================== */
@@ -519,13 +626,23 @@ app.post("/api/progress/study", async (req, res) => {
         }
 
         // Update user progress
-        await db.promise().query(
+        const [updated] = await db.promise().query(
             `UPDATE user_progress
              SET study_streak = ?,
                  last_study_date = CURDATE()
              WHERE user_id = ?`,
             [streak, user_id]
         );
+
+        // the exam form no longer creates this row, so create it on first study day
+        if (updated.affectedRows === 0) {
+            await db.promise().query(
+                `INSERT INTO user_progress
+                 (user_id, exam_name, exam_date, study_streak, last_study_date)
+                 VALUES (?, '', CURDATE(), ?, CURDATE())`,
+                [user_id, streak]
+            );
+        }
 
         res.json({
             success: true,

@@ -2,8 +2,8 @@ const API = "https://task-manager-backend-3nxb.onrender.com";
 const $ = id => document.getElementById(id);
 const taskForm = $("taskForm"), taskList = $("taskList"), editForm = $("editForm"),
     searchTask = $("searchTask"), statusFilter = $("statusFilter"), priorityFilter = $("priorityFilter"),
-    sortTasks = $("sortTasks"), categoryForm = $("categoryForm"), categoryList = $("categoryList");
-let allTasks = [], deleteTaskId = null, view = "all";
+    sortTasks = $("sortTasks"), deadlineFilter = $("deadlineFilter"), categoryForm = $("categoryForm"), categoryList = $("categoryList");
+let allTasks = [], deadlines = [], tasksLoaded = false, deleteTarget = null, view = "all";
 const user = JSON.parse(localStorage.getItem("user"));
 if (!user) location.href = "login.html";
 
@@ -79,49 +79,6 @@ async function loadWeeklyProgress() {
         console.error(err);
     }
 }
-
-/* ---------- exam countdown ---------- */
-async function renderExam() {
-    try {
-        const progress = await req(`/api/progress/${user.user_id}`);
-
-        if (!progress.length) {
-            $("examDays").textContent = "--";
-            $("examLabel").textContent = "Set your next exam";
-            $("examName").value = "";
-            $("examDate").value = "";
-            return;
-        }
-
-        const exam = progress[0];
-        const examDate = String(exam.exam_date).substring(0, 10);
-        const days = Math.ceil((new Date(examDate) - new Date(today())) / 864e5);
-
-        $("examDays").textContent = days >= 0 ? days : "Done";
-        $("examLabel").textContent = days >= 0 ? `days until ${exam.exam_name}` : `${exam.exam_name} has passed`;
-        $("examName").value = exam.exam_name;
-        $("examDate").value = examDate;
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-$("examSave").onclick = async () => {
-    const name = $("examName").value.trim();
-    const date = $("examDate").value;
-
-    if (!name) return toast("Enter exam name");
-    if (!date) return toast("Pick an exam date");
-
-    try {
-        await req("/api/progress", "POST", { user_id: user.user_id, exam_name: name, exam_date: date });
-        await renderExam();
-        toast("Exam saved successfully!");
-    } catch (err) {
-        console.error(err);
-        toast(err.message);
-    }
-};
 
 /* =========================================================
    FOCUS TIMER  (+ Picture-in-Picture)
@@ -325,7 +282,7 @@ async function openVideoPiP() {
 const openAdd = () => $("addModal").style.display = "block";
 const closeAdd = () => $("addModal").style.display = "none";
 const closeEditModal = () => $("editModal").style.display = "none";
-const closeDeleteModal = () => { $("deleteModal").style.display = "none"; deleteTaskId = null; };
+const closeDeleteModal = () => { $("deleteModal").style.display = "none"; deleteTarget = null; };
 window.addEventListener("click", e => { if (e.target.classList.contains("modal")) e.target.style.display = "none"; });
 
 /* ---------- categories ---------- */
@@ -405,6 +362,7 @@ function displayTasks(tasks) {
           <div class="task-info">
             <span class="badge ${pc}">${esc(t.priority)} priority</span><span class="badge ${sc}">${esc(t.status)}</span>
             <span class="badge category-badge">${esc(t.category_name) || "No category"}</span>
+            ${deadlineChip(t)}
           </div>
           <div class="timeline">${timeline(t)}</div>
           <div class="task-actions"><button class="btn gold-btn" onclick="editTask(${t.task_id})">Edit</button>
@@ -416,6 +374,9 @@ function applyFilters() {
     if (q) f = f.filter(t => [t.title, t.description, t.category_name].some(v => String(v || "").toLowerCase().includes(q)));
     if (statusFilter.value !== "All") f = f.filter(t => t.status === statusFilter.value);
     if (priorityFilter.value !== "All") f = f.filter(t => t.priority === priorityFilter.value);
+    const dl = deadlineFilter.value;
+    if (dl === "none") f = f.filter(t => !t.deadline_id);
+    else if (dl !== "all") f = f.filter(t => String(t.deadline_id) === dl);
     const open = t => t.status !== "Completed";
     if (view === "today") f = f.filter(t => open(t) && dueOf(t) === t0);
     if (view === "upcoming") f = f.filter(t => open(t) && dueOf(t) > t0);
@@ -432,7 +393,7 @@ function applyFilters() {
 }
 async function loadTasks(first) {
     if (first) taskList.innerHTML = '<div class="skeleton"></div>'.repeat(4);
-    try { allTasks = await req(`/tasks?user_id=${user.user_id}`); updateDashboard(); applyFilters(); }
+    try { allTasks = await req(`/tasks?user_id=${user.user_id}`); tasksLoaded = true; updateDashboard(); renderDeadlines(); applyFilters(); }
     catch (e) { console.error(e); toast("Unable to connect to server."); }
 }
 taskForm.addEventListener("submit", async e => {
@@ -440,7 +401,8 @@ taskForm.addEventListener("submit", async e => {
     const body = {
         project_id: 1, title: $("title").value, description: $("description").value, priority: $("priority").value,
         status: $("status").value, due_date: $("due_date").value, due_time: $("due_time").value || null,
-        est_hours: $("est_hours").value || null, category_id: $("category").value, user_id: user.user_id
+        est_hours: $("est_hours").value || null, category_id: $("category").value, user_id: user.user_id,
+        deadline_id: $("deadline").value || null
     };
     try {
         await req("/tasks", "POST", body); if (body.status === "Completed") logDone();
@@ -452,7 +414,7 @@ async function saveTask(t, changes) {
     const body = {
         title: t.title, description: t.description, priority: t.priority, status: t.status,
         due_date: dueOf(t), due_time: t.due_time || null, est_hours: t.est_hours ?? null,
-        category_id: t.category_id, ...changes
+        category_id: t.category_id, deadline_id: t.deadline_id ?? null, ...changes
     };
     await req(`/tasks/${t.task_id}`, "PUT", body);
     if (changes.status === "Completed" && t.status !== "Completed") logDone();
@@ -469,6 +431,7 @@ function editTask(id) {
     $("editPriority").value = t.priority; $("editStatus").value = t.status; $("editDueDate").value = dueOf(t);
     $("editDueTime").value = timeOf(t); $("editHours").value = t.est_hours ?? "";
     if (t.category_id) $("editCategory").value = t.category_id;
+    $("editDeadline").value = t.deadline_id ?? "";
     $("editModal").style.display = "block";
 }
 editForm.addEventListener("submit", async e => {
@@ -478,23 +441,165 @@ editForm.addEventListener("submit", async e => {
         await saveTask(t, {
             title: $("editTitle").value, description: $("editDescription").value, priority: $("editPriority").value,
             status: $("editStatus").value, due_date: $("editDueDate").value, due_time: $("editDueTime").value || null,
-            est_hours: $("editHours").value || null, category_id: $("editCategory").value
+            est_hours: $("editHours").value || null, category_id: $("editCategory").value,
+            deadline_id: $("editDeadline").value || null
         });
         closeEditModal(); toast("Changes saved"); loadTasks();
     } catch (err) { toast(err.message); }
 });
-const deleteTask = id => { deleteTaskId = id; $("deleteModal").style.display = "block"; };
+function askDelete(kind, id) {
+    deleteTarget = { kind, id };
+    $("deleteTitle").textContent = kind === "task" ? "Delete this task?" : "Delete this deadline?";
+    $("deleteText").textContent = kind === "task"
+        ? "This can't be undone."
+        : "Its tasks stay in your list, they just won't be linked to it.";
+    $("deleteModal").style.display = "block";
+}
+const deleteTask = id => askDelete("task", id);
+const askDeleteDeadline = id => askDelete("deadline", id);
+
 async function confirmDelete() {
-    if (!deleteTaskId) return;
-    try { await req(`/tasks/${deleteTaskId}`, "DELETE"); closeDeleteModal(); toast("Task deleted"); loadTasks(); }
-    catch (err) { toast(err.message); }
+    if (!deleteTarget) return;
+    const { kind, id } = deleteTarget;
+    try {
+        if (kind === "task") {
+            await req(`/tasks/${id}`, "DELETE");
+            toast("Task deleted");
+        } else {
+            await req(`/deadlines/${id}?user_id=${user.user_id}`, "DELETE");
+            toast("Deadline deleted");
+        }
+        closeDeleteModal();
+        if (kind === "deadline") await loadDeadlines();
+        loadTasks();
+    } catch (err) { toast(err.message); }
 }
 function setView(v) {
     view = v; document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.view === v)); applyFilters();
 }
 function filterDashboard(status) {
-    statusFilter.value = status; priorityFilter.value = "All"; sortTasks.value = "dueSoon"; searchTask.value = "";
+    statusFilter.value = status; priorityFilter.value = "All"; sortTasks.value = "dueSoon"; searchTask.value = ""; deadlineFilter.value = "all";
     setView("all"); $("myTasks").scrollIntoView({ behavior: "smooth" });
+}
+
+/* =========================================================
+   MAJOR DEADLINES (exams, projects, assignments...)
+   Tasks link to a deadline through tasks.deadline_id, and each
+   card's progress bar is worked out from those linked tasks.
+   ========================================================= */
+const TYPE_ICON = { Exam: "🎓", Project: "🚀", Assignment: "📝", Other: "📌" };
+const daysTo = d => Math.round((new Date(d) - new Date(today())) / 864e5);
+const dlDate = d => String(d.due_date || "").substring(0, 10);
+
+async function loadDeadlines() {
+    try {
+        deadlines = await req(`/deadlines?user_id=${user.user_id}`);
+        fillDeadlineSelects();
+        renderDeadlines();
+        if (tasksLoaded) applyFilters();     // task cards show the deadline name
+    } catch (e) { console.error(e); }
+}
+
+function setOptions(sel, html) {
+    const prev = sel.value;
+    sel.innerHTML = html;
+    const still = [...sel.options].some(o => o.value === prev);
+    if (still) sel.value = prev; else sel.selectedIndex = 0;
+}
+
+function fillDeadlineSelects() {
+    const list = deadlines.map(d => `<option value="${d.deadline_id}">${esc(d.title)}</option>`).join("");
+    const pick = `<option value="">No major deadline</option>${list}`;
+    setOptions($("deadline"), pick);
+    setOptions($("editDeadline"), pick);
+    setOptions(deadlineFilter, `<option value="all">All deadlines</option><option value="none">No deadline</option>${list}`);
+}
+
+function deadlineChip(t) {
+    const d = t.deadline_id && deadlines.find(x => x.deadline_id === t.deadline_id);
+    return d ? `<span class="badge deadline-badge">🎯 ${esc(d.title)}</span>` : "";
+}
+
+function renderDeadlines() {
+    const box = $("deadlineList");
+    if (!deadlines.length) {
+        box.innerHTML = `<div class="empty-tasks"><h3>No major deadlines yet</h3>
+            <p>Add an exam, project or assignment, then link your daily tasks to it.</p></div>`;
+        return;
+    }
+
+    box.innerHTML = deadlines.map(d => {
+        const date = dlDate(d), n = daysTo(date);
+        const linked = allTasks.filter(t => t.deadline_id === d.deadline_id);
+        const done = linked.filter(t => t.status === "Completed").length;
+        const pct = linked.length ? Math.round(done / linked.length * 100) : 0;
+
+        const urgency = n < 0 ? "late" : n <= 3 ? "hot" : n <= 7 ? "soon" : "";
+        const count = n === 0 ? "Today" : Math.abs(n);
+        const label = n < 0 ? `day${n === -1 ? "" : "s"} overdue` : n === 0 ? "is the deadline" : `day${n === 1 ? "" : "s"} left`;
+        const pretty = new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+        const type = TYPE_ICON[d.deadline_type] ? d.deadline_type : "Other";
+
+        return `<div class="deadline ${urgency}">
+            <div class="dl-top">
+                <span class="badge type-${type}">${TYPE_ICON[type]} ${type}</span>
+                <span class="dl-actions">
+                    <button onclick="editDeadline(${d.deadline_id})" aria-label="Edit deadline">✎</button>
+                    <button onclick="askDeleteDeadline(${d.deadline_id})" aria-label="Delete deadline">✕</button>
+                </span>
+            </div>
+            <h3>${esc(d.title)}</h3>
+            <div class="dl-count"><b>${count}</b><small>${label}</small></div>
+            <small>📅 ${pretty}</small>
+            <div class="bar"><div style="width:${pct}%"></div></div>
+            <small>${linked.length ? `${done} of ${linked.length} tasks done` : "No tasks linked yet"}</small>
+            <button class="btn ghost" onclick="viewDeadlineTasks(${d.deadline_id})">View tasks</button>
+        </div>`;
+    }).join("");
+}
+
+function openDeadlineModal() {
+    $("deadlineForm").reset();
+    $("deadlineId").value = "";
+    $("deadlineType").value = "Project";
+    $("deadlineModalTitle").textContent = "New deadline";
+    $("deadlineSave").textContent = "Add deadline";
+    $("deadlineModal").style.display = "block";
+}
+const closeDeadlineModal = () => $("deadlineModal").style.display = "none";
+
+function editDeadline(id) {
+    const d = deadlines.find(x => x.deadline_id === id); if (!d) return toast("Deadline not found");
+    $("deadlineId").value = d.deadline_id;
+    $("deadlineTitle").value = d.title;
+    $("deadlineType").value = d.deadline_type;
+    $("deadlineDate").value = dlDate(d);
+    $("deadlineModalTitle").textContent = "Edit deadline";
+    $("deadlineSave").textContent = "Save changes";
+    $("deadlineModal").style.display = "block";
+}
+
+$("deadlineForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = $("deadlineId").value;
+    const body = {
+        user_id: user.user_id, title: $("deadlineTitle").value.trim(),
+        deadline_type: $("deadlineType").value, due_date: $("deadlineDate").value
+    };
+    try {
+        if (id) await req(`/deadlines/${id}`, "PUT", body);
+        else await req("/deadlines", "POST", body);
+        closeDeadlineModal();
+        toast(id ? "Deadline updated" : "Deadline added");
+        loadDeadlines();
+    } catch (err) { toast(err.message); }
+});
+
+function viewDeadlineTasks(id) {
+    deadlineFilter.value = String(id);
+    statusFilter.value = "All"; priorityFilter.value = "All"; searchTask.value = "";
+    setView("all");
+    $("myTasks").scrollIntoView({ behavior: "smooth" });
 }
 
 /* ---------- theme, scroll, wiring ---------- */
@@ -511,12 +616,12 @@ window.addEventListener("scroll", () => $("backToTop").classList.toggle("show", 
 const scrollToTop = () => scrollTo({ top: 0, behavior: "smooth" });
 document.querySelectorAll(".tab").forEach(b => b.onclick = () => setView(b.dataset.view));
 [searchTask].forEach(el => el.addEventListener("input", applyFilters));
-[statusFilter, priorityFilter, sortTasks].forEach(el => el.addEventListener("change", applyFilters));
+[statusFilter, priorityFilter, deadlineFilter, sortTasks].forEach(el => el.addEventListener("change", applyFilters));
 
 // keep "x hours left" fresh without a reload
 setInterval(() => { if (allTasks.length) applyFilters(); }, 60000);
 
 renderStreak();
-renderExam();
 loadCategories();
+loadDeadlines();
 loadTasks(true);

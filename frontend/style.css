@@ -524,7 +524,7 @@ textarea {
 
 .filters {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.2fr;
+    grid-template-columns: 2fr 1fr 1fr 1.3fr 1.2fr;
     gap: 10px;
     margin: 6px 0 18px
 }
@@ -879,6 +879,141 @@ body.pip-body .timer {
 
 body.pip-body .btns {
     justify-content: center
+}
+
+/* ---------- major deadlines ---------- */
+.widgets {
+    grid-template-columns: repeat(3, 1fr)
+}
+
+.deadline-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px
+}
+
+.deadline-head h2 {
+    margin: 0;
+    font-size: 22px
+}
+
+.deadline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px
+}
+
+.deadline {
+    --accent: var(--line);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--accent);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+.deadline.soon {
+    --accent: var(--gold)
+}
+
+.deadline.hot,
+.deadline.late {
+    --accent: var(--red)
+}
+
+.dl-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}
+
+.dl-actions button {
+    border: 0;
+    background: transparent;
+    color: var(--soft);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 4px 7px;
+    border-radius: 6px
+}
+
+.dl-actions button:hover {
+    background: var(--line);
+    color: var(--ink)
+}
+
+.deadline h3 {
+    font-size: 18px
+}
+
+.dl-count {
+    display: flex;
+    align-items: baseline;
+    gap: 8px
+}
+
+.dl-count b {
+    font-family: var(--f1);
+    font-size: 36px;
+    line-height: 1
+}
+
+.deadline.hot .dl-count b,
+.deadline.late .dl-count b {
+    color: var(--red)
+}
+
+.deadline .bar {
+    margin: 2px 0
+}
+
+.deadline .btn {
+    padding: 8px;
+    font-size: 13px
+}
+
+.bar>div {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 20px;
+    transition: width .6s
+}
+
+.type-Exam {
+    background: var(--red-soft);
+    color: var(--red)
+}
+
+.type-Project {
+    background: var(--gold-soft);
+    color: var(--gold)
+}
+
+.type-Assignment {
+    background: var(--blue-soft);
+    color: var(--blue)
+}
+
+.type-Other {
+    background: var(--green-soft);
+    color: var(--green)
+}
+
+.deadline-badge {
+    background: var(--gold-soft);
+    color: var(--gold)
+}
+
+@media(max-width:960px) {
+    .filters input {
+        grid-column: 1/-1
+    }
 }
 
 /* ---------- responsive ---------- */

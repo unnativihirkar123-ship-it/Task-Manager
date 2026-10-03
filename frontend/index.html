@@ -30,6 +30,7 @@
 
             <div class="nav-links">
                 <a href="#dashboard">Dashboard</a>
+                <a href="#deadlines">Deadlines</a>
                 <a href="#categories">Categories</a>
                 <a href="#myTasks">My Tasks</a>
             </div>
@@ -147,6 +148,20 @@
             </div>
 
 
+            <!-- MAJOR DEADLINES -->
+            <div class="card" id="deadlines">
+
+                <div class="deadline-head">
+                    <h2>Major deadlines</h2>
+                    <button class="btn gold-btn" id="addDeadlineBtn" onclick="openDeadlineModal()">+ Add
+                        deadline</button>
+                </div>
+
+                <div class="deadline-grid" id="deadlineList"></div>
+
+            </div>
+
+
             <!-- DASHBOARD WIDGETS -->
             <div class="widgets">
 
@@ -156,7 +171,8 @@
 
                     <div class="row timer-head">
                         <h3>Focus timer</h3>
-                        <button class="btn ghost pip-btn" id="pipBtn" title="Keep the timer floating on top of other windows">
+                        <button class="btn ghost pip-btn" id="pipBtn"
+                            title="Keep the timer floating on top of other windows">
                             ⧉ Pop out
                         </button>
                     </div>
@@ -198,22 +214,6 @@
                 </div>
 
 
-                <!-- EXAM COUNTDOWN -->
-                <div class="card">
-
-                    <h3>Exam countdown</h3>
-
-                    <div class="big" id="examDays">--</div>
-
-                    <small id="examLabel">Set your next exam</small>
-
-                    <div class="exam-form">
-                        <input type="text" id="examName" placeholder="e.g. GATE">
-                        <input type="date" id="examDate">
-                        <button class="btn gold-btn" id="examSave">Save</button>
-                    </div>
-
-                </div>
 
 
                 <!-- STUDY STREAK -->
@@ -296,6 +296,10 @@
                     <option value="Low">Low</option>
                 </select>
 
+                <select id="deadlineFilter">
+                    <option value="all">All deadlines</option>
+                </select>
+
                 <select id="sortTasks">
                     <option value="dueSoon" selected>Sort: deadline, soonest</option>
                     <option value="dueLate">Sort: deadline, latest</option>
@@ -352,8 +356,7 @@
                         <option value="Completed">Completed</option>
                     </select>
 
-                    <input type="number" id="est_hours" min="0.25" max="999" step="0.25"
-                        placeholder="Hours needed">
+                    <input type="number" id="est_hours" min="0.25" max="999" step="0.25" placeholder="Hours needed">
 
                 </div>
 
@@ -370,6 +373,13 @@
                     </label>
 
                 </div>
+
+                <label class="field">
+                    <small>Major deadline (optional)</small>
+                    <select id="deadline">
+                        <option value="">No major deadline</option>
+                    </select>
+                </label>
 
                 <button type="submit" class="btn gold-btn">Add task</button>
 
@@ -417,8 +427,7 @@
 
                     <select id="editCategory"></select>
 
-                    <input type="number" id="editHours" min="0.25" max="999" step="0.25"
-                        placeholder="Hours needed">
+                    <input type="number" id="editHours" min="0.25" max="999" step="0.25" placeholder="Hours needed">
 
                 </div>
 
@@ -436,7 +445,52 @@
 
                 </div>
 
+                <label class="field">
+                    <small>Major deadline (optional)</small>
+                    <select id="editDeadline">
+                        <option value="">No major deadline</option>
+                    </select>
+                </label>
+
                 <button type="submit" class="btn gold-btn">Save changes</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- DEADLINE MODAL -->
+    <div id="deadlineModal" class="modal">
+
+        <div class="modal-content">
+
+            <span class="close" onclick="closeDeadlineModal()">&times;</span>
+
+            <h2 id="deadlineModalTitle">New deadline</h2>
+
+            <form id="deadlineForm">
+
+                <input type="hidden" id="deadlineId">
+
+                <input type="text" id="deadlineTitle" placeholder="e.g. DBMS project submission" maxlength="150"
+                    required>
+
+                <div class="two">
+
+                    <select id="deadlineType">
+                        <option value="Exam">Exam</option>
+                        <option value="Project" selected>Project</option>
+                        <option value="Assignment">Assignment</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <input type="date" id="deadlineDate" required>
+
+                </div>
+
+                <button type="submit" class="btn gold-btn" id="deadlineSave">Add deadline</button>
 
             </form>
 
@@ -450,9 +504,9 @@
 
         <div class="modal-content" style="text-align:center">
 
-            <h2>Delete this task?</h2>
+            <h2 id="deleteTitle">Delete this task?</h2>
 
-            <p class="muted">This can't be undone.</p>
+            <p class="muted" id="deleteText">This can't be undone.</p>
 
             <div class="btns" style="justify-content:center">
                 <button class="btn danger" onclick="confirmDelete()">Yes, delete</button>
@@ -473,11 +527,28 @@
 
 
     <!-- FOOTER -->
-    <footer>
-        Stintlist &mdash; a DBMS project &middot;
-        HTML, CSS, JavaScript &amp; MySQL
-        <p class="credit">Made with <span aria-hidden="true">♥</span> by Unnn. I built this beautiful website.</p>
-    </footer>
+   <footer>
+    Stintlist &mdash; a DBMS project &middot;
+    HTML, CSS, JavaScript &amp; MySQL
+
+```
+<p class="credit">
+    &copy; 2026 Stintlist &middot;
+    Designed &amp; Developed with <span aria-hidden="true">♥</span> by Unnati Vihirkar
+</p>
+
+<p class="tagline">Plan. Track. Achieve.</p>
+
+<p class="footer-links">
+    <a href="mailto:unnativihirkar123@gmail.com">Contact</a> &middot;
+    <a href="https://github.com/unnativihirkar123-ship-it" target="_blank">GitHub</a> &middot;
+    <a href="https://www.linkedin.com/in/unnati-vihirkar/" target="_blank">LinkedIn</a>
+</p>
+```
+
+</footer>
+
+
 
 
     <script src="script.js"></script>
