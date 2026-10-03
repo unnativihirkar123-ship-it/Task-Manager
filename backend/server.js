@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const db = require("./db");
 
@@ -279,6 +280,115 @@ app.post("/login", (req, res) => {
             fail(res, error, "Login failed.");
         }
     });
+});
+
+/* ===================== PASSWORD RESET ===================== */
+/* Render's free tier blocks SMTP ports, so the email goes out over
+   Brevo's HTTPS API instead. Env vars needed on Render:
+   BREVO_API_KEY, MAIL_FROM (a sender verified in Brevo), FRONTEND_URL (optional) */
+
+const FRONTEND_URL = (process.env.FRONTEND_URL || "https://task-manager-frontend-xfen.onrender.com").replace(/\/$/, "");
+const sha256 = s => crypto.createHash("sha256").update(s).digest("hex");
+const escHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+async function sendResetEmail(to, name, link) {
+    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+            "api-key": process.env.BREVO_API_KEY,
+            "content-type": "application/json",
+            accept: "application/json"
+        },
+        body: JSON.stringify({
+            sender: { name: "Stintlist", email: process.env.MAIL_FROM },
+            to: [{ email: to }],
+            subject: "Reset your Stintlist password",
+            htmlContent: `
+                <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#1F2430">
+                    <h2>Reset your password</h2>
+                    <p>Hi ${escHtml(name)},</p>
+                    <p>Click the button below to choose a new password. This link works for 30 minutes.</p>
+                    <p><a href="${link}" style="display:inline-block;background:#C98A2B;color:#1F2430;
+                        padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:bold">Choose a new password</a></p>
+                    <p style="font-size:13px;color:#6B6558">If you didn't ask for this, you can ignore this email. Your password won't change.</p>
+                </div>`
+        })
+    });
+
+    if (!r.ok) throw new Error(`Brevo ${r.status}: ${await r.text()}`);
+}
+
+// Step 1: user enters their email, we send a reset link
+app.post("/forgot-password", (req, res) => {
+    const email = (req.body.email || "").trim().toLowerCase();
+
+    if (!email) {
+        return res.status(400).json({ message: "Please enter your email." });
+    }
+
+    // same answer whether or not the email exists, so nobody can probe for accounts
+    const generic = { message: "If that email is registered, a reset link is on its way." };
+
+    db.query("SELECT user_id, name FROM users WHERE email = ?", [email], (err, results) => {
+        if (err) return fail(res, err, "Server error.");
+        if (results.length === 0) return res.json(generic);
+
+        const { user_id, name } = results[0];
+        const token = crypto.randomBytes(32).toString("hex");
+
+        // only a hash of the token is stored; the link holds the real token
+        db.query(
+            `UPDATE users
+             SET reset_token = ?, reset_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE)
+             WHERE user_id = ?`,
+            [sha256(token), user_id],
+            async (err) => {
+                if (err) return fail(res, err, "Server error.");
+
+                try {
+                    await sendResetEmail(email, name, `${FRONTEND_URL}/reset-password.html?token=${token}`);
+                    res.json(generic);
+                } catch (error) {
+                    fail(res, error, "Couldn't send the reset email. Please try again in a few minutes.");
+                }
+            }
+        );
+    });
+});
+
+// Step 2: user opens the link and sets a new password
+app.post("/reset-password", async (req, res) => {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+        return res.status(400).json({ message: "Reset link and new password are required." });
+    }
+    if (String(password).length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // one query: only succeeds if the token matches and hasn't expired
+        db.query(
+            `UPDATE users
+             SET password = ?, reset_token = NULL, reset_expires = NULL
+             WHERE reset_token = ? AND reset_expires > NOW()`,
+            [hashedPassword, sha256(String(token))],
+            (err, result) => {
+                if (err) return fail(res, err, "Server error.");
+
+                if (result.affectedRows === 0) {
+                    return res.status(400).json({ message: "This reset link is invalid or has expired." });
+                }
+
+                res.json({ message: "Password updated. You can log in now." });
+            }
+        );
+    } catch (error) {
+        fail(res, error, "Error securing password.");
+    }
 });
 
 /* ===================== EXAM PROGRESS ===================== */
