@@ -1214,3 +1214,73 @@ body.pip-body .btns {
         transition: none !important
     }
 }
+
+/* ---------- COMPLETED TASKS ---------- */
+
+.completed-section {
+    margin-top: 24px;
+}
+
+.completed-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border: 1px solid var(--border, #ddd);
+    border-radius: 14px;
+    background: var(--card, #fff);
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.completed-toggle:hover {
+    transform: translateY(-1px);
+}
+
+.completed-toggle.open {
+    border-radius: 14px 14px 0 0;
+}
+
+.completed-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    margin-left: 6px;
+    border-radius: 20px;
+    background: rgba(224, 165, 66, 0.15);
+    font-size: 12px;
+}
+
+#completedArrow {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+}
+
+.completed-task-list {
+    display: none;
+    padding: 14px;
+    border: 1px solid var(--border, #ddd);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    background: var(--card, #fff);
+}
+
+.completed-task-list .task {
+    opacity: 0.82;
+}
+
+.completed-task-list .task:last-child {
+    margin-bottom: 0;
+}
+
+.completed-task-list .task h3 {
+    text-decoration: line-through;
+    opacity: 0.75;
+}

@@ -1,6 +1,13 @@
 const API = "https://task-manager-backend-3nxb.onrender.com";
 const $ = id => document.getElementById(id);
-const taskForm = $("taskForm"), taskList = $("taskList"), editForm = $("editForm"),
+const taskForm = $("taskForm"),
+    taskList = $("activeTaskList"),
+    completedTaskList = $("completedTaskList"),
+    completedSection = $("completedSection"),
+    completedToggle = $("completedToggle"),
+    completedCount = $("completedCount"),
+    completedArrow = $("completedArrow"),
+    editForm = $("editForm"),
     searchTask = $("searchTask"), statusFilter = $("statusFilter"), priorityFilter = $("priorityFilter"),
     sortTasks = $("sortTasks"), deadlineFilter = $("deadlineFilter"), categoryForm = $("categoryForm"), categoryList = $("categoryList");
 let allTasks = [], deadlines = [], tasksLoaded = false, deleteTarget = null, view = "all";
@@ -25,6 +32,16 @@ async function req(path, method = "GET", body) {
     if (!r.ok) throw new Error(data.message || "Request failed");
     return data;
 }
+
+let completedOpen = false;
+
+completedToggle.addEventListener("click", () => {
+    completedOpen = !completedOpen;
+
+    completedTaskList.style.display = completedOpen ? "block" : "none";
+    completedArrow.textContent = completedOpen ? "⌃" : "⌄";
+    completedToggle.classList.toggle("open", completedOpen);
+});
 
 /* ---------- header / greeting / logout ---------- */
 const h = new Date().getHours();
@@ -347,27 +364,93 @@ function timeline(t) {
 
 /* ---------- tasks ---------- */
 function displayTasks(tasks) {
-    if (!tasks.length) {
-        taskList.innerHTML = `<div class="empty-tasks"><h3>Nothing here yet</h3><p>Add a task or change your filters.</p></div>`; return;
+    const activeTasks = tasks.filter(t => t.status !== "Completed");
+    const completedTasks = tasks.filter(t => t.status === "Completed");
+
+    completedCount.textContent = completedTasks.length;
+
+    completedSection.style.display = completedTasks.length ? "block" : "none";
+
+    if (!activeTasks.length) {
+        taskList.innerHTML = completedTasks.length
+            ? `<div class="empty-tasks">
+                <h3>All caught up 🎉</h3>
+                <p>You have no active tasks right now.</p>
+               </div>`
+            : `<div class="empty-tasks">
+                <h3>Nothing here yet</h3>
+                <p>Add a task or change your filters.</p>
+               </div>`;
+    } else {
+        taskList.innerHTML = activeTasks.map(renderTaskCard).join("");
     }
-    taskList.innerHTML = tasks.map(t => {
-        const sc = t.status === "Completed" ? "status-completed" : t.status === "In Progress" ? "status-progress" : "status-pending";
-        const pc = { High: "priority-high", Medium: "priority-medium" }[t.priority] || "priority-low";
-        return `<div class="task p-${esc(t.priority)} ${t.status === "Completed" ? "completed-task" : ""}">
-          <div class="task-top">
-            <button class="check" onclick="toggleDone(${t.task_id})" aria-label="Mark complete">${t.status === "Completed" ? "✓" : ""}</button>
-            <div><h3>${esc(t.title)}</h3><span class="task-id">Task #${t.task_id}</span></div>
-          </div>
-          <p class="task-description">${esc(t.description) || "No description provided."}</p>
-          <div class="task-info">
-            <span class="badge ${pc}">${esc(t.priority)} priority</span><span class="badge ${sc}">${esc(t.status)}</span>
-            <span class="badge category-badge">${esc(t.category_name) || "No category"}</span>
+
+    completedTaskList.innerHTML = completedTasks.map(renderTaskCard).join("");
+
+    completedTaskList.style.display = completedOpen ? "block" : "none";
+    completedArrow.textContent = completedOpen ? "⌃" : "⌄";
+}
+
+function renderTaskCard(t) {
+    const sc = t.status === "Completed"
+        ? "status-completed"
+        : t.status === "In Progress"
+            ? "status-progress"
+            : "status-pending";
+
+    const pc = {
+        High: "priority-high",
+        Medium: "priority-medium"
+    }[t.priority] || "priority-low";
+
+    return `<div class="task p-${esc(t.priority)} ${t.status === "Completed" ? "completed-task" : ""}">
+        <div class="task-top">
+            <button class="check"
+                onclick="toggleDone(${t.task_id})"
+                aria-label="${t.status === "Completed" ? "Reopen task" : "Mark complete"}">
+                ${t.status === "Completed" ? "✓" : ""}
+            </button>
+
+            <div>
+                <h3>${esc(t.title)}</h3>
+                <span class="task-id">Task #${t.task_id}</span>
+            </div>
+        </div>
+
+        <p class="task-description">
+            ${esc(t.description) || "No description provided."}
+        </p>
+
+        <div class="task-info">
+            <span class="badge ${pc}">
+                ${esc(t.priority)} priority
+            </span>
+
+            <span class="badge ${sc}">
+                ${esc(t.status)}
+            </span>
+
+            <span class="badge category-badge">
+                ${esc(t.category_name) || "No category"}
+            </span>
+
             ${deadlineChip(t)}
-          </div>
-          <div class="timeline">${timeline(t)}</div>
-          <div class="task-actions"><button class="btn gold-btn" onclick="editTask(${t.task_id})">Edit</button>
-          <button class="btn ghost" onclick="deleteTask(${t.task_id})">Delete</button></div></div>`;
-    }).join("");
+        </div>
+
+        <div class="timeline">
+            ${timeline(t)}
+        </div>
+
+        <div class="task-actions">
+            <button class="btn gold-btn" onclick="editTask(${t.task_id})">
+                Edit
+            </button>
+
+            <button class="btn ghost" onclick="deleteTask(${t.task_id})">
+                Delete
+            </button>
+        </div>
+    </div>`;
 }
 function applyFilters() {
     let f = [...allTasks]; const q = searchTask.value.toLowerCase().trim(), t0 = today();
@@ -392,7 +475,10 @@ function applyFilters() {
     displayTasks(f);
 }
 async function loadTasks(first) {
-    if (first) taskList.innerHTML = '<div class="skeleton"></div>'.repeat(4);
+   if (first) {
+    taskList.innerHTML = '<div class="skeleton"></div>'.repeat(4);
+    completedSection.style.display = "none";
+}
     try { allTasks = await req(`/tasks?user_id=${user.user_id}`); tasksLoaded = true; updateDashboard(); renderDeadlines(); applyFilters(); }
     catch (e) { console.error(e); toast("Unable to connect to server."); }
 }

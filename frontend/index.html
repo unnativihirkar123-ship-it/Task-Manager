@@ -310,7 +310,19 @@
             </div>
 
 
-            <div id="taskList"></div>
+            <div id="activeTaskList"></div>
+
+<div id="completedSection" class="completed-section">
+    <button type="button" id="completedToggle" class="completed-toggle">
+        <span>
+            ✅ Completed Tasks
+            <span id="completedCount" class="completed-count">0</span>
+        </span>
+        <span id="completedArrow">⌄</span>
+    </button>
+
+    <div id="completedTaskList" class="completed-task-list"></div>
+</div>
 
         </section>
 
