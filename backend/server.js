@@ -14,6 +14,11 @@ const fail = (res, err, message, code = 500) => {
     return res.status(code).json({ message });
 };
 
+// "" / undefined -> null, otherwise a number (NaN if invalid)
+const cleanHours = v => (v === undefined || v === null || v === "") ? null : Number(v);
+const cleanTime = v => v ? String(v) : null;
+const badHours = h => h !== null && (Number.isNaN(h) || h < 0 || h > 999);
+
 app.get("/", (req, res) => {
     res.send("Task Manager Server is Running!");
 });
@@ -70,6 +75,7 @@ app.get("/tasks", (req, res) => {
         return res.status(400).json({ message: "User ID is required." });
     }
 
+    // nearest deadline first; a task with no time is treated as due at end of day
     const sql = `
         SELECT
             tasks.*,
@@ -81,7 +87,9 @@ app.get("/tasks", (req, res) => {
         LEFT JOIN categories
             ON task_categories.category_id = categories.category_id
         WHERE tasks.user_id = ?
-        ORDER BY tasks.task_id DESC
+        ORDER BY tasks.due_date ASC,
+                 COALESCE(tasks.due_time, '23:59:59') ASC,
+                 tasks.task_id DESC
     `;
 
     db.query(sql, [userId], (err, results) => {
@@ -93,7 +101,7 @@ app.get("/tasks", (req, res) => {
 app.post("/tasks", (req, res) => {
     const {
         project_id, title, description, priority,
-        status, due_date, category_id, user_id
+        status, due_date, due_time, est_hours, category_id, user_id
     } = req.body;
 
     if (!user_id) {
@@ -103,15 +111,20 @@ app.post("/tasks", (req, res) => {
         return res.status(400).json({ message: "Title and due date are required." });
     }
 
+    const hours = cleanHours(est_hours);
+    if (badHours(hours)) {
+        return res.status(400).json({ message: "Estimated hours must be a positive number." });
+    }
+
     const taskSql = `
         INSERT INTO tasks
-        (project_id, title, description, priority, status, due_date, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (project_id, title, description, priority, status, due_date, due_time, est_hours, user_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
         taskSql,
-        [project_id, title, description, priority, status, due_date, user_id],
+        [project_id, title, description, priority, status, due_date, cleanTime(due_time), hours, user_id],
         (err, result) => {
             if (err) return fail(res, err, "Error adding task.");
 
@@ -135,17 +148,23 @@ app.post("/tasks", (req, res) => {
 
 app.put("/tasks/:id", (req, res) => {
     const { id } = req.params;
-    const { title, description, priority, status, due_date, category_id } = req.body;
+    const { title, description, priority, status, due_date, due_time, est_hours, category_id } = req.body;
+
+    const hours = cleanHours(est_hours);
+    if (badHours(hours)) {
+        return res.status(400).json({ message: "Estimated hours must be a positive number." });
+    }
 
     const taskSql = `
         UPDATE tasks
-        SET title = ?, description = ?, priority = ?, status = ?, due_date = ?
+        SET title = ?, description = ?, priority = ?, status = ?,
+            due_date = ?, due_time = ?, est_hours = ?
         WHERE task_id = ?
     `;
 
     db.query(
         taskSql,
-        [title, description, priority, status, due_date, id],
+        [title, description, priority, status, due_date, cleanTime(due_time), hours, id],
         (err) => {
             if (err) return fail(res, err, "Error updating task.");
 
@@ -261,6 +280,7 @@ app.post("/login", (req, res) => {
         }
     });
 });
+
 /* ===================== EXAM PROGRESS ===================== */
 
 // Get user's exam progress
@@ -277,15 +297,9 @@ app.get("/api/progress/:user_id", (req, res) => {
     );
 });
 
-
-// Save exam details
 // Save or update user's exam details
 app.post("/api/progress", (req, res) => {
-    const {
-        user_id,
-        exam_name,
-        exam_date
-    } = req.body;
+    const { user_id, exam_name, exam_date } = req.body;
 
     if (!user_id || !exam_name || !exam_date) {
         return res.status(400).json({
@@ -302,7 +316,7 @@ app.post("/api/progress", (req, res) => {
                 return fail(res, err, "Error checking exam progress.");
             }
 
-            // If exam already exists → update it
+            // If exam already exists -> update it
             if (results.length > 0) {
                 const progressId = results[0].progress_id;
 
@@ -313,11 +327,7 @@ app.post("/api/progress", (req, res) => {
                     [exam_name.trim(), exam_date, progressId],
                     (err) => {
                         if (err) {
-                            return fail(
-                                res,
-                                err,
-                                "Error updating exam progress."
-                            );
+                            return fail(res, err, "Error updating exam progress.");
                         }
 
                         res.json({
@@ -330,7 +340,7 @@ app.post("/api/progress", (req, res) => {
                 return;
             }
 
-            // If user has no exam → create one
+            // If user has no exam -> create one
             db.query(
                 `INSERT INTO user_progress
                  (user_id, exam_name, exam_date, study_streak, last_study_date)
@@ -338,11 +348,7 @@ app.post("/api/progress", (req, res) => {
                 [user_id, exam_name.trim(), exam_date],
                 (err, result) => {
                     if (err) {
-                        return fail(
-                            res,
-                            err,
-                            "Error saving exam progress."
-                        );
+                        return fail(res, err, "Error saving exam progress.");
                     }
 
                     res.status(201).json({
@@ -355,9 +361,7 @@ app.post("/api/progress", (req, res) => {
     );
 });
 
-
-/// Record today's study activity and update streak
-
+// Record today's study activity and update streak
 app.post("/api/progress/study", async (req, res) => {
     try {
         const { user_id } = req.body;
@@ -430,6 +434,7 @@ app.post("/api/progress/study", async (req, res) => {
         });
     }
 });
+
 // Manually update streak
 app.post("/api/progress/update-streak", (req, res) => {
     const { user_id, study_streak } = req.body;
@@ -455,7 +460,6 @@ app.post("/api/progress/update-streak", (req, res) => {
     );
 });
 
-
 // Get weekly study progress
 app.get("/api/progress/week/:user_id", (req, res) => {
     const { user_id } = req.params;
@@ -469,11 +473,7 @@ app.get("/api/progress/week/:user_id", (req, res) => {
         [user_id],
         (err, results) => {
             if (err) {
-                return fail(
-                    res,
-                    err,
-                    "Error fetching weekly progress."
-                );
+                return fail(res, err, "Error fetching weekly progress.");
             }
 
             res.json(results);
