@@ -1275,7 +1275,9 @@ body.pip-body .btns {
 }
 
 .completed-task-list {
-    display: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
     padding: 14px;
     border: 1px solid var(--border, #ddd);
     border-top: none;
@@ -1550,4 +1552,8 @@ body.pip-body .btns {
         min-width: 0;
         text-align: left
     }
+}
+.completed-task-list {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
 }

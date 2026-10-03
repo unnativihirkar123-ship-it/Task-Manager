@@ -38,7 +38,7 @@ let completedOpen = false;
 completedToggle.addEventListener("click", () => {
     completedOpen = !completedOpen;
 
-    completedTaskList.style.display = completedOpen ? "block" : "none";
+    completedTaskList.style.display = completedOpen ? "grid" : "none";
     completedArrow.textContent = completedOpen ? "⌃" : "⌄";
     completedToggle.classList.toggle("open", completedOpen);
 });
@@ -387,8 +387,10 @@ function displayTasks(tasks) {
 
     completedTaskList.innerHTML = completedTasks.map(renderTaskCard).join("");
 
-    completedTaskList.style.display = completedOpen ? "block" : "none";
-    completedArrow.textContent = completedOpen ? "⌃" : "⌄";
+    completedTaskList.style.display = completedOpen ? "grid" : "none";
+completedTaskList.style.gridTemplateColumns = completedOpen ? "repeat(2, minmax(0, 1fr))" : "";
+completedTaskList.style.gap = completedOpen ? "18px" : "";
+completedArrow.textContent = completedOpen ? "⌃" : "⌄";
 }
 
 function renderTaskCard(t) {
