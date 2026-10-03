@@ -5,29 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<title>Stintlist – Smart Task & Study Planner</title>
+    ```
+    <title>Stintlist – Smart Task & Study Planner</title>
 
-<meta
-    name="description"
-    content="Stintlist is a smart task and study planner that helps you organize tasks, track progress, manage deadlines, and stay productive."
->
+    <meta name="description"
+        content="Stintlist is a smart task and study planner that helps you organize tasks, track progress, manage deadlines, and stay productive.">
 
-<meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow">
 
-<link rel="canonical" href="https://stintlist.onrender.com/">
+    <link rel="canonical" href="https://stintlist.onrender.com/">
 
-<link rel="icon" type="image/svg+xml" href="stintlist-logo.svg">
+    <link rel="icon" type="image/svg+xml" href="stintlist-logo.svg">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
-<link rel="stylesheet" href="style.css">
-```
+    <link rel="stylesheet" href="style.css">
+    ```
 
 </head>
 
@@ -161,7 +159,40 @@
                 <small id="progressText">0 of 0 tasks completed</small>
 
             </div>
+            <!-- CALENDAR (paste right after the OVERALL PROGRESS card, before MAJOR DEADLINES) -->
+            <section class="card cal-card" id="calendar" aria-label="Calendar">
 
+                <div class="cal-left">
+                    <div class="cal-head">
+                        <button type="button" class="cal-nav" id="calPrev" aria-label="Previous month">&lsaquo;</button>
+                        <h3 id="calMonth">Month</h3>
+                        <button type="button" class="cal-nav" id="calNext" aria-label="Next month">&rsaquo;</button>
+                        <button type="button" class="cal-today" id="calToday">Today</button>
+                    </div>
+
+                    <div class="cal-week">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+
+                    <div class="cal-grid" id="calGrid"></div>
+
+                    <div class="cal-legend">
+                        <span><i class="dot-urgent"></i>Urgent</span>
+                        <span><i class="dot-task"></i>Upcoming</span>
+                        <span><i class="dot-done"></i>Done</span>
+                        <span><i class="dot-event"></i>Deadline</span>
+                    </div>
+                </div>
+
+                <div class="cal-right">
+                    <div class="row">
+                        <h3 id="calSideTitle">Upcoming</h3>
+                        <a href="#myTasks" class="cal-link">View all tasks</a>
+                    </div>
+                    <div id="calSide"></div>
+                </div>
+
+            </section>
 
             <!-- MAJOR DEADLINES -->
             <div class="card" id="deadlines">
@@ -327,17 +358,17 @@
 
             <div id="activeTaskList"></div>
 
-<div id="completedSection" class="completed-section">
-    <button type="button" id="completedToggle" class="completed-toggle">
-        <span>
-            ✅ Completed Tasks
-            <span id="completedCount" class="completed-count">0</span>
-        </span>
-        <span id="completedArrow">⌄</span>
-    </button>
+            <div id="completedSection" class="completed-section">
+                <button type="button" id="completedToggle" class="completed-toggle">
+                    <span>
+                        ✅ Completed Tasks
+                        <span id="completedCount" class="completed-count">0</span>
+                    </span>
+                    <span id="completedArrow">⌄</span>
+                </button>
 
-    <div id="completedTaskList" class="completed-task-list"></div>
-</div>
+                <div id="completedTaskList" class="completed-task-list"></div>
+            </div>
 
         </section>
 
@@ -554,31 +585,32 @@
 
 
     <!-- FOOTER -->
-   <footer>
-    Stintlist &mdash; a DBMS project &middot;
-    HTML, CSS, JavaScript &amp; MySQL
+    <footer>
+        Stintlist &mdash; a DBMS project &middot;
+        HTML, CSS, JavaScript &amp; MySQL
 
-```
-<p class="credit">
-    &copy; 2026 Stintlist &middot;
-    Designed &amp; Developed with <span aria-hidden="true">♥</span> by Unnati Vihirkar
-</p>
+        ```
+        <p class="credit">
+            &copy; 2026 Stintlist &middot;
+            Designed &amp; Developed with <span aria-hidden="true">♥</span> by Unnati Vihirkar
+        </p>
 
-<p class="tagline">Plan. Track. Achieve.</p>
+        <p class="tagline">Plan. Track. Achieve.</p>
 
-<p class="footer-links">
-    <a href="mailto:unnativihirkar123@gmail.com">Contact</a> &middot;
-    <a href="https://github.com/unnativihirkar123-ship-it" target="_blank">GitHub</a> &middot;
-    <a href="https://www.linkedin.com/in/unnati-vihirkar/" target="_blank">LinkedIn</a>
-</p>
-```
+        <p class="footer-links">
+            <a href="mailto:unnativihirkar123@gmail.com">Contact</a> &middot;
+            <a href="https://github.com/unnativihirkar123-ship-it" target="_blank">GitHub</a> &middot;
+            <a href="https://www.linkedin.com/in/unnati-vihirkar/" target="_blank">LinkedIn</a>
+        </p>
+        ```
 
-</footer>
+    </footer>
 
 
 
 
     <script src="script.js"></script>
+     <script src="calendar.js"></script>
 
 </body>
 

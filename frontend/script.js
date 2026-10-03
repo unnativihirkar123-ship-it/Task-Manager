@@ -479,7 +479,7 @@ async function loadTasks(first) {
     taskList.innerHTML = '<div class="skeleton"></div>'.repeat(4);
     completedSection.style.display = "none";
 }
-    try { allTasks = await req(`/tasks?user_id=${user.user_id}`); tasksLoaded = true; updateDashboard(); renderDeadlines(); applyFilters(); }
+    try { allTasks = await req(`/tasks?user_id=${user.user_id}`); tasksLoaded = true; updateDashboard(); renderDeadlines(); applyFilters(); window.renderCalendar?.(); }
     catch (e) { console.error(e); toast("Unable to connect to server."); }
 }
 taskForm.addEventListener("submit", async e => {
@@ -582,6 +582,7 @@ async function loadDeadlines() {
         deadlines = await req(`/deadlines?user_id=${user.user_id}`);
         fillDeadlineSelects();
         renderDeadlines();
+        window.renderCalendar?.();
         if (tasksLoaded) applyFilters();     // task cards show the deadline name
     } catch (e) { console.error(e); }
 }
