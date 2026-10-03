@@ -1026,15 +1026,16 @@ body.pip-body .btns {
         grid-template-columns: 1fr 1fr
     }
 
-   #activeTaskList,
-#completedTaskList {
-    grid-template-columns: 1fr;
-}
+    #activeTaskList,
+    #completedTaskList {
+        grid-template-columns: 1fr;
+    }
 
     .filters {
         grid-template-columns: 1fr 1fr
     }
 }
+
 .completed-task-list.open {
     grid-template-columns: 1fr;
 }
@@ -1114,18 +1115,19 @@ body.pip-body .btns {
         padding: 20px 12px 100px;
         gap: 14px
     }
-.completed-task-list.open {
-    grid-template-columns: 1fr;
-    gap: 10px;
-}
 
-  .stats,
-.widgets,
-#activeTaskList,
-#completedTaskList {
-    grid-template-columns: 1fr;
-    gap: 10px;
-}
+    .completed-task-list.open {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .stats,
+    .widgets,
+    #activeTaskList,
+    #completedTaskList {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
 
     .stat {
         min-height: 58px;
@@ -1189,6 +1191,12 @@ body.pip-body .btns {
         margin: 4vh auto;
         padding: 20px
     }
+
+    .completed-task-list {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
 }
 
 @media(max-width:380px) {
@@ -1275,14 +1283,15 @@ body.pip-body .btns {
 }
 
 .completed-task-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    display: none;
     padding: 14px;
     border: 1px solid var(--border, #ddd);
     border-top: none;
     border-radius: 0 0 14px 14px;
     background: var(--card, #fff);
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
 }
 
 .completed-task-list.open {
@@ -1303,6 +1312,7 @@ body.pip-body .btns {
     text-decoration: line-through;
     opacity: 0.75;
 }
+
 /* ---------- MINI CALENDAR (add at the very end of style.css) ---------- */
 .cal-card {
     display: flex;
@@ -1553,7 +1563,17 @@ body.pip-body .btns {
         text-align: left
     }
 }
-.completed-task-list {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
+/* Completed tasks: 2 cards per row */
+.completed-task-list[style*="display: block"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .completed-task-list[style*="display: block"] {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
 }
