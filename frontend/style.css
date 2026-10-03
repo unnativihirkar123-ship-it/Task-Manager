@@ -1035,6 +1035,9 @@ body.pip-body .btns {
         grid-template-columns: 1fr 1fr
     }
 }
+.completed-task-list.open {
+    grid-template-columns: 1fr;
+}
 
 @media(max-width:600px) {
 
@@ -1111,6 +1114,10 @@ body.pip-body .btns {
         padding: 20px 12px 100px;
         gap: 14px
     }
+.completed-task-list.open {
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
 
   .stats,
 .widgets,
@@ -1274,6 +1281,12 @@ body.pip-body .btns {
     border-top: none;
     border-radius: 0 0 14px 14px;
     background: var(--card, #fff);
+}
+
+.completed-task-list.open {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
 }
 
 .completed-task-list .task {
