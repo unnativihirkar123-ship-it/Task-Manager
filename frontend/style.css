@@ -833,6 +833,17 @@ footer {
     border-top: 1px solid var(--line)
 }
 
+footer .credit {
+    margin-top: 6px;
+    font-family: var(--f1);
+    font-weight: 600;
+    color: var(--ink)
+}
+
+footer .credit span {
+    color: var(--gold)
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
