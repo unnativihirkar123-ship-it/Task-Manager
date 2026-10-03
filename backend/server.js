@@ -394,7 +394,7 @@ app.post("/login", (req, res) => {
    Brevo's HTTPS API instead. Env vars needed on Render:
    BREVO_API_KEY, MAIL_FROM (a sender verified in Brevo), FRONTEND_URL (optional) */
 
-const FRONTEND_URL = (process.env.FRONTEND_URL || "https://task-manager-frontend-xfen.onrender.com").replace(/\/$/, "");
+const FRONTEND_URL = (process.env.FRONTEND_URL || "https://stintlist.onrender.com").replace(/\/$/, "");
 const sha256 = s => crypto.createHash("sha256").update(s).digest("hex");
 const escHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 

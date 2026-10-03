@@ -529,11 +529,13 @@ textarea {
     margin: 6px 0 18px
 }
 
-#taskList {
+#activeTaskList,
+#completedTaskList {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
 }
+
 
 .task {
     --accent: var(--gold);
@@ -1024,9 +1026,10 @@ body.pip-body .btns {
         grid-template-columns: 1fr 1fr
     }
 
-    #taskList {
-        grid-template-columns: 1fr
-    }
+   #activeTaskList,
+#completedTaskList {
+    grid-template-columns: 1fr;
+}
 
     .filters {
         grid-template-columns: 1fr 1fr
@@ -1109,12 +1112,13 @@ body.pip-body .btns {
         gap: 14px
     }
 
-    .stats,
-    .widgets,
-    #taskList {
-        grid-template-columns: 1fr;
-        gap: 10px
-    }
+  .stats,
+.widgets,
+#activeTaskList,
+#completedTaskList {
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
 
     .stat {
         min-height: 58px;
